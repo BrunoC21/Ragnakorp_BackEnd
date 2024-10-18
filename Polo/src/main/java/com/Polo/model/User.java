@@ -1,6 +1,6 @@
 package com.Polo.model;
 
-// import java.util.List;
+import java.util.List;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -8,9 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-// import jakarta.persistence.JoinColumn;
-// import jakarta.persistence.JoinTable;
-// import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
 import lombok.Data;
 
 @Data
@@ -43,10 +43,10 @@ public class User {
     @Column(name = "user_role", nullable = false)
     private String userRole;
 
-    // // tabla relacion con users
-    // @ManyToMany
-    // @JoinTable(name = "user_project", // nombre tabla intermedia
-    // joinColumns = @JoinColumn(name = "user_id"), // cikynba eb ka tavka ubternedua que referencia a User
-    // inverseJoinColumns = @JoinColumn(name = "proj_id")) // Columna que referencia a project
-    // private List<Project> projects;
+    // tabla relacion con users
+    @ManyToMany
+    @JoinTable(name = "user_project", // nombre tabla intermedia
+    joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
+    inverseJoinColumns = @JoinColumn(name = "proj_id")) // Columna que referencia a project
+    private List<Project> projects; // nombre asignado al mappeo
 }
