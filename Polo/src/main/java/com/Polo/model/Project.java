@@ -1,12 +1,14 @@
 package com.Polo.model;
 
+import java.util.List;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import jakarta.persistence.ManyToMany;
 import lombok.Data;
 
 @Data
@@ -42,5 +44,11 @@ public class Project {
     @Column(name = "proj_category", nullable = false)
     private String projCategory;
 
-    // Falta relacion ManyToMany con User
+    // Relacion ManyToMany con User
+    @ManyToMany(mappedBy = "projects")
+    private List<User> user;
+
+    // Relacion ManyToMany con changes
+    @ManyToMany(mappedBy = "projectChange")
+    private List<Changes> changes;    
 }

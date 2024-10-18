@@ -1,6 +1,7 @@
 package com.Polo.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -10,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.Data;
 
 @Data
@@ -44,6 +46,12 @@ public class News {
     @Column(name = "news_primaryimage", nullable = false)
     private String primaryImage;
 
-    // FALTA MAPEAR LA RELACION USER-NEWS
+    // Relacion ManyToMany con User
+    @ManyToMany(mappedBy = "news")
+    private List<User> user;
+
+    // Relacion ManyToMany con changes
+    @ManyToMany(mappedBy = "newsChangee")
+    private List<Changes> changes;
 
 }

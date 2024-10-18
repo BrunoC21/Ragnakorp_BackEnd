@@ -49,4 +49,18 @@ public class User {
     joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
     inverseJoinColumns = @JoinColumn(name = "proj_id")) // Columna que referencia a project
     private List<Project> projects; // nombre asignado al mappeo
+
+    // tabla relacion con postulation
+    @ManyToMany
+    @JoinTable(name = "user_postulation", // nombre tabla intermedia
+    joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
+    inverseJoinColumns = @JoinColumn(name = "id_postulation")) // Columna que referencia a project
+    private List<Postulation> postulation; // nombre asignado al mappeo
+
+    // tabla relacion con news
+    @ManyToMany
+    @JoinTable(name = "user_news", // nombre tabla intermedia
+    joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
+    inverseJoinColumns = @JoinColumn(name = "news_code")) // Columna que referencia a project
+    private List<News> news; // nombre asignado al mappeo
 }
