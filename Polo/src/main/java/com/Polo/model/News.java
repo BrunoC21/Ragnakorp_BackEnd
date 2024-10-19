@@ -51,7 +51,7 @@ public class News {
     private List<User> user;
 
     // Relacion ManyToMany con changes
-    @ManyToMany(mappedBy = "newsChangee")
+    @ManyToMany(mappedBy = "newsChange")
     private List<Changes> changes;
 
 }
