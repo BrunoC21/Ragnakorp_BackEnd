@@ -6,7 +6,6 @@ import com.Polo.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
-// import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -16,11 +15,9 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
-    // private final PasswordEncoder passwordEncoder;
 
     public void createUser(User user) {
         if (user != null) {
-            // user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
             userRepository.save(user);
         } else {
             System.out.println("Error al crear el usuario");
