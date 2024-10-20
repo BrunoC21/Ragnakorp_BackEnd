@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import lombok.Data;
 
@@ -50,5 +52,11 @@ public class Project {
 
     // Relacion ManyToMany con changes
     @ManyToMany(mappedBy = "projectChange")
-    private List<Changes> changes;    
+    private List<Changes> changes;
+
+    @ManyToMany
+    @JoinTable(name = "project_postulation", // nombre tabla intermedia
+            joinColumns = @JoinColumn(name = "proj_id"), // columna que hace referencia a usuario
+            inverseJoinColumns = @JoinColumn(name = "id_postulation")) // Columna que referencia a project
+    private List<Postulation> postulationProj; // nombre asignado al mappeo
 }
