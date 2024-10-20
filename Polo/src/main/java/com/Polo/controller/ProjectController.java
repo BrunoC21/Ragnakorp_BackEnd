@@ -57,4 +57,11 @@ public class ProjectController {
             return null;
         }
     }
+
+    // buscar proyecto por nombre
+    @GetMapping("/search/{projectName}")
+    public ResponseEntity<Project> findProjectByName(@PathVariable String projectName) {
+        Optional<Project> project = projectService.findProjectByName(projectName);
+        return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    }
 }

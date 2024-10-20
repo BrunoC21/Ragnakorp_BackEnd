@@ -33,14 +33,10 @@ public class ProjectService {
         return projectRepository.findById(id);
     }
 
-    // public Project updateProject(Integer id, Project projectDetails) {
-    // Project project = projectRepository.findById(id).orElseThrow();
-    // project.setProjectName(projectDetails.getProjectName());
-    // project.setProjectDescription(projectDetails.getProjectDescription());
-    // project.setProjectStartDate(projectDetails.getProjectStartDate());
-    // project.setProjectEndDate(projectDetails.getProjectEndDate());
-    // return projectRepository.save(project);
-    // }
+    // busqueda de projecto por nombre
+    public Optional<Project> findProjectByName(String projectName) {
+        return Optional.ofNullable(projectRepository.findByProjectName(projectName));
+    }
 
     public boolean deleteProject(int id) {
         if (projectRepository.existsById(id)) {
@@ -49,4 +45,5 @@ public class ProjectService {
         }
         return false;
     }
+
 }
