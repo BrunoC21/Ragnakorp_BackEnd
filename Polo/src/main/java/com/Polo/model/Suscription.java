@@ -34,5 +34,5 @@ public class Suscription {
     @CreationTimestamp
     @Column(name = "sub_datesuscription", nullable = false, updatable = false)
     private LocalDateTime subCreationTime;
-    
+
 }

@@ -33,12 +33,11 @@ public class Access {
     @Column(name = "device", nullable = false)
     private String device;
 
-
     // tabla relacion con stadistics
     @ManyToMany
     @JoinTable(name = "access_stadistic", // nombre tabla intermedia
-    joinColumns = @JoinColumn(name = "id_acces"), // columna que hace referencia a usuario
-    inverseJoinColumns = @JoinColumn(name = "id_stadistic")) // Columna que referencia a project
+            joinColumns = @JoinColumn(name = "id_acces"), // columna que hace referencia a usuario
+            inverseJoinColumns = @JoinColumn(name = "id_stadistic")) // Columna que referencia a project
     private List<Stadistics> stadistics; // nombre asignado al mappeo
 
 }
