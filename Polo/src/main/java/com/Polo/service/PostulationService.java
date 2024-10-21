@@ -1,5 +1,6 @@
 package com.Polo.service;
 
+import com.Polo.Details.PostulationUserDetailsService;
 import com.Polo.model.Postulation;
 import com.Polo.repository.PostulationRepository;
 
@@ -15,10 +16,12 @@ import lombok.RequiredArgsConstructor;
 public class PostulationService {
 
     private final PostulationRepository postulationRepository;
+    private final PostulationUserDetailsService postulationUserDetailsService;
 
     public void createPostulation(Postulation postulation) {
         if (postulation != null) {
             postulationRepository.save(postulation);
+            postulationUserDetailsService.saveDetails(postulation);
         } else {
             System.out.println("Error al crear la postulacion");
         }
