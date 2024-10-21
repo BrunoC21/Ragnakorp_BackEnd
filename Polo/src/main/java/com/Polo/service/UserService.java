@@ -41,7 +41,6 @@ public class UserService {
     public Optional<User>findUserByName(String userName) {
         return Optional.ofNullable(userRepository.findByUserName(userName));
     }
-
     public boolean deleteUser(int id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);

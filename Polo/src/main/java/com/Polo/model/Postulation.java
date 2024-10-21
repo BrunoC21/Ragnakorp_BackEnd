@@ -30,7 +30,6 @@ public class Postulation {
     // Relacion ManyToMany con User y con Project
     @ManyToMany(mappedBy = "postulation")
     private List<User> user;
-
     @ManyToMany(mappedBy = "postulationProj")
     private List<Project> project;
 }
