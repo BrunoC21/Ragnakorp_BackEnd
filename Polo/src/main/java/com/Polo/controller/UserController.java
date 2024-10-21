@@ -29,7 +29,7 @@ public class UserController {
     private final UserService userService;
 
     // crear usuarios
-    @CrossOrigin("http://127.0.0.1:5500") // una ves se lance la app esto debe eliminarse porque corre en servidor
+    @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
     @PostMapping("/create")
     public void createUser(@RequestBody User user) {
         userService.createUser(user);
@@ -40,7 +40,7 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable int id) {
         boolean isDeleted = userService.deleteUser(id);
         if (isDeleted) {
-            return ResponseEntity.ok("Usuario eliminado existosamente");
+            return ResponseEntity.ok("Usuario eliminado exitosamente");
         } else {
             return ResponseEntity.status(404).body("Usuario no encontrado");
         }
@@ -72,13 +72,13 @@ public class UserController {
 
     // buscar usuario por nombre
     @GetMapping("search/name/{userName}")
-    public ResponseEntity<User> findUserByNamet(@PathVariable String userName) {
+    public ResponseEntity<User> findUserByName(@PathVariable String userName) {
         Optional<User> user = userService.findUserByName(userName);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
     // apartado login
-    @CrossOrigin("http://127.0.0.1:5500") // una ves se lance la app esto debe eliminarse porque corre en servidor
+    @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
     @PostMapping("login")
     public String loginUser(@RequestParam String rut, @RequestParam String password) {
         // Validar el login
@@ -91,7 +91,7 @@ public class UserController {
 
     // apartado para eliminar usuarios
     @DeleteMapping("/deleteUser/{adminName}")
-    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminName,@RequestParam String userName) {
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminName, @RequestParam String userName) {
         
         // Validar si el usuario que está solicitando es ADMIN
         if (!userService.isAdmin(adminName)) {
@@ -99,7 +99,7 @@ public class UserController {
         }
 
         if (!userService.isAdmin(userName)) {
-            return new ResponseEntity<>("User trying to delete is a ADMIN", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("User trying to delete is an ADMIN", HttpStatus.FORBIDDEN);
         }
         
         // Intentar eliminar al usuario
@@ -108,7 +108,7 @@ public class UserController {
         if (check) {
             return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("User can not deleted", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("User cannot be deleted", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -130,5 +130,4 @@ public class UserController {
             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
         }
     }
-
 }

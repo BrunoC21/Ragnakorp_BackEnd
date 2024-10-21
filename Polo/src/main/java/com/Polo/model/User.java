@@ -2,8 +2,6 @@ package com.Polo.model;
 
 import java.util.List;
 
-// import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +37,6 @@ public class User {
     @Column(name = "user_phone", nullable = false)
     private String userPhone;
 
-    // @JsonIgnore
     @Column(name = "user_password", nullable = false)
     private String userPassword;
 
