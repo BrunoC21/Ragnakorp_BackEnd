@@ -59,9 +59,9 @@ public class ProjectController {
     }
 
     // buscar proyecto por nombre
-    @GetMapping("/search/{projName}")
-    public ResponseEntity<Project> findByProjectName(@PathVariable String projName) {
-        Optional<Project> project = projectService.findByProjectName(projName);
+    @GetMapping("/search/name/{projName}")
+    public ResponseEntity<Project> findByProjName(@PathVariable String projName) {
+        Optional<Project> project = projectService.findByProjName(projName);
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 }

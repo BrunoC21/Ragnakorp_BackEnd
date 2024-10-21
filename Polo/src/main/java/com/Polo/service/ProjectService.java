@@ -33,8 +33,8 @@ public class ProjectService {
     }
 
     // busqueda de projecto por nombre
-    public Optional<Project> findByProjectName(String projName) {
-        return Optional.ofNullable(projectRepository.findByProjectName(projName));
+    public Optional<Project> findByProjName(String projName) {
+        return Optional.ofNullable(projectRepository.findByProjName(projName));
     }
 
     public boolean deleteProject(int id) {

@@ -6,7 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-    Project findByProjectName(String projName);
-
-    Project findByProjectId(int id);
+    Project findByProjName(String projName);
 }
