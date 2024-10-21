@@ -26,6 +26,8 @@ public class EnviromentVinculation {
     private String activityDescription;
 
     @ManyToOne
-    @JoinColumn(name = "activity_iduser")
+    @JoinColumn(name = "activity_iduser", nullable = false) // Clave foránea
     private User user;
+
+    // Falta relacion ManyToMany con User
 }

@@ -54,6 +54,7 @@ public class Project {
     @ManyToMany(mappedBy = "projectChange")
     private List<Changes> changes;
 
+    // tabla relacion con postulation
     @ManyToMany
     @JoinTable(name = "project_postulation", // nombre tabla intermedia
             joinColumns = @JoinColumn(name = "proj_id"), // columna que hace referencia a usuario

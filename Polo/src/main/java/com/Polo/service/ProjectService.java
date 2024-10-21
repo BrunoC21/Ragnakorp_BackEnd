@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -29,13 +28,13 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Optional<Project> findProjectById(int id) {
+    public Optional<Project> findByProjectId(int id) {
         return projectRepository.findById(id);
     }
 
     // busqueda de projecto por nombre
-    public Optional<Project> findProjectByName(String projectName) {
-        return Optional.ofNullable(projectRepository.findByProjectName(projectName));
+    public Optional<Project> findByProjectName(String projName) {
+        return Optional.ofNullable(projectRepository.findByProjectName(projName));
     }
 
     public boolean deleteProject(int id) {

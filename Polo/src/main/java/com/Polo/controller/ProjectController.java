@@ -49,8 +49,8 @@ public class ProjectController {
 
     // buscar proyecto por id
     @GetMapping("/search/{id}")
-    public Optional<Project> findProjectById(@PathVariable int id) {
-        Optional<Project> project = projectService.findProjectById(id);
+    public Optional<Project> findByProjectId(@PathVariable int id) {
+        Optional<Project> project = projectService.findByProjectId(id);
         if (project.isPresent()) {
             return project;
         } else {
@@ -59,9 +59,9 @@ public class ProjectController {
     }
 
     // buscar proyecto por nombre
-    @GetMapping("/search/{projectName}")
-    public ResponseEntity<Project> findProjectByName(@PathVariable String projectName) {
-        Optional<Project> project = projectService.findProjectByName(projectName);
+    @GetMapping("/search/{projName}")
+    public ResponseEntity<Project> findByProjectName(@PathVariable String projName) {
+        Optional<Project> project = projectService.findByProjectName(projName);
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 }
