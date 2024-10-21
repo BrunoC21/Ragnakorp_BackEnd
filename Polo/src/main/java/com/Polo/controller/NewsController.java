@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.service.NewsService;
 import com.Polo.model.News;
-import com.Polo.model.User;
 
 import lombok.RequiredArgsConstructor;
 
