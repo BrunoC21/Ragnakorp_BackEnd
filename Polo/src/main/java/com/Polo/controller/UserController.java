@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-
 import com.Polo.model.User;
 import com.Polo.service.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/user")
@@ -31,8 +31,13 @@ public class UserController {
     // crear usuarios
     @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
     @PostMapping("/create")
-    public void createUser(@RequestBody User user) {
-        userService.createUser(user);
+    public ResponseEntity<String> createUser(@RequestBody User user) {
+        boolean chek = userService.createUser(user);
+        if (chek) {
+            return ResponseEntity.ok("Usuario creado exitosamente");
+        } else {
+            return ResponseEntity.status(404).body("Usuario no creado");
+        }
     }
 
     // eliminar usuarios
@@ -92,7 +97,7 @@ public class UserController {
     // apartado para eliminar usuarios
     @DeleteMapping("/deleteUser/{adminName}")
     public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminName, @RequestParam String userName) {
-        
+
         // Validar si el usuario que está solicitando es ADMIN
         if (!userService.isAdmin(adminName)) {
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
@@ -101,10 +106,10 @@ public class UserController {
         if (!userService.isAdmin(userName)) {
             return new ResponseEntity<>("User trying to delete is an ADMIN", HttpStatus.FORBIDDEN);
         }
-        
+
         // Intentar eliminar al usuario
         boolean check = userService.deleteUserByName(userName);
-        
+
         if (check) {
             return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
         } else {
@@ -115,15 +120,15 @@ public class UserController {
     // apartado para asignar roles a los usuarios
     @PutMapping("/assignRole/{adminName}")
     public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminName, @RequestParam String userName, @RequestParam String newRole) {
-    
+
         // Verificar si el usuario que está intentando asignar es ADMIN
         if (!userService.isAdmin(adminName)) {
             return new ResponseEntity<>("User is not an ADMIN", HttpStatus.FORBIDDEN);
         }
-        
+
         // Intentar asignar el nuevo rol al usuario
         boolean isUpdated = userService.updateUserRole(userName, newRole);
-        
+
         if (isUpdated) {
             return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
         } else {
