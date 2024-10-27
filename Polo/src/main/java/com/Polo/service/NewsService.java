@@ -43,4 +43,12 @@ public class NewsService {
         return newsRepository.findById(id);
     }
 
+    public Optional<News> findNewsByTitle(String newsTitle) {
+        return Optional.ofNullable(newsRepository.findByNewsTitle(newsTitle));
+    }
+
+    public Optional<News> findNewsByCategory(String newsCategory) {
+        return Optional.ofNullable(newsRepository.findByNewsCategory(newsCategory));
+    }
+
 }

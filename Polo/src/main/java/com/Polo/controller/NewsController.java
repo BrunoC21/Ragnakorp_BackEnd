@@ -59,6 +59,17 @@ public class NewsController {
     }
 
     // buscar noticia por titulo
+    @GetMapping("/search/title/{newsTitle}")
+    public ResponseEntity<News> findNewsByTitle(@PathVariable String newsTitle) {
+        Optional<News> news = newsService.findNewsByTitle(newsTitle);
+        return news.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    }
+
     // buscar noticia por categoria   
+    @GetMapping("/search/category/{newsCategory}")
+    public ResponseEntity<News> findNewsByCategory(@PathVariable String newsCategory) {
+        Optional<News> news = newsService.findNewsByCategory(newsCategory);
+        return news.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    } 
 
 }

@@ -65,9 +65,9 @@ public class UserService {
     public boolean deleteUserByName(String userName) {
         User user = userRepository.findByUserName(userName);
 
-        // Si el usuario existe, lo eliminamos por ID
+        // Si el usuario existe, lo eliminamos
         if (user != null) {
-            if (!isAdmin(user.getUserName())) {
+            if (isAdmin(user.getUserName())) {
                 return false;
             }
             userRepository.delete(user);
@@ -93,10 +93,12 @@ public class UserService {
     // Método para actualizar el rol del usuario
     public boolean updateUserRole(String userName, String newRole) {
         User user = userRepository.findByUserName(userName);
-
+        
         // Si el usuario existe, actualizar su rol
         if (user != null) {
+            System.out.println("USUARIO ENCONTRADO");
             try {
+                System.out.println("ROL ACTUALIZADO");
                 Role role = Role.valueOf(newRole.toUpperCase());
                 user.setUserRole(role.name());
                 userRepository.save(user);  // Guardar los cambios en la base de datos

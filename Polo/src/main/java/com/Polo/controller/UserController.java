@@ -101,10 +101,14 @@ public class UserController {
         // Validar si el usuario que está solicitando es ADMIN
         if (!userService.isAdmin(adminName)) {
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("El admin name esta correcto");
         }
 
-        if (!userService.isAdmin(userName)) {
+        if (userService.isAdmin(userName)) {
             return new ResponseEntity<>("User trying to delete is an ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("El user name esta correcto");
         }
 
         // Intentar eliminar al usuario
