@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.Polo.model.Project;
 import com.Polo.service.ProjectService;
+import com.Polo.service.UserService;
 
 @RestController
 @RequestMapping("/project")
@@ -23,11 +24,17 @@ import com.Polo.service.ProjectService;
 
 public class ProjectController {
     private final ProjectService projectService;
+    private final UserService userService;
 
     // crear proyectos
     @PostMapping("/create")
-    public void createProject(@RequestBody Project project) {
-        projectService.createProject(project);
+    public ResponseEntity<String> createUser(@RequestBody Project project) {
+        boolean chek = projectService.createProject(project);
+        if (chek) {
+            return ResponseEntity.ok("Proyecto creado exitosamente");
+        } else {
+            return ResponseEntity.status(404).body("Proyecto no creado");
+        }
     }
 
     // eliminar proyectos
@@ -63,5 +70,23 @@ public class ProjectController {
     public ResponseEntity<Project> findByProjName(@PathVariable String projName) {
         Optional<Project> project = projectService.findByProjName(projName);
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    }
+
+    @PostMapping("/create/{administrativeName}/{userRut}")
+    public ResponseEntity<String> createProjectByAdministrativeName(
+            @PathVariable String administrativeName,
+            @PathVariable String userRut,
+            @RequestBody Project project) {
+
+        if (!userService.isAdministrative(administrativeName, userRut)) {
+            return ResponseEntity.status(403).body("No tienes permisos para crear un proyecto");
+        }
+
+        boolean chek = projectService.createProject(project);
+        if (chek) {
+            return ResponseEntity.ok("Proyecto creado exitosamente");
+        } else {
+            return ResponseEntity.status(400).body("Proyecto no creado");
+        }
     }
 }
