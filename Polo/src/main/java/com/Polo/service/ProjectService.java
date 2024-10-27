@@ -16,12 +16,19 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
 
-    public void createProject(Project project) {
+    public boolean createProject(Project project) {
         if (project != null) {
-            projectRepository.save(project);
-        } else {
-            System.out.println("Error al crear el proyecto");
+            Project existingProject = projectRepository.findByProjName(project.getProjName());
+            if (existingProject != null) {
+                System.out.println("El proyecto ya existe.");
+                return false;
+            } else {
+                projectRepository.save(project);
+                System.out.println("Proyecto creado exitosamente.");
+                return true;
+            }
         }
+        return false;
     }
 
     public List<Project> findAllProjects() {

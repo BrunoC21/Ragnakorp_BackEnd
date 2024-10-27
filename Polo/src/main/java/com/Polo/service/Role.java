@@ -1,9 +1,9 @@
 package com.Polo.service;
 
 public enum Role {
-    ADMIN, 
-    ADMINISTRATOR, 
-    INVESTIGADOR, 
-    ESTUDIANTE, 
+    ADMIN,
+    ADMINISTRATIVE,
+    INVESTIGADOR,
+    ESTUDIANTE,
     DESARROLLADOR
 }

@@ -90,6 +90,14 @@ public class UserService {
         return user != null && "ADMIN".equals(user.getUserRole());
     }
 
+    // Metodo para verificar si el usuario es Adminsitrativo
+    public boolean isAdministrative(String userName, String userRut) {
+        Optional<User> user = userRepository.findByUserNameAndUserRut(userName, userRut);
+        System.out.println(user.get().getUserRole());
+        // Verificar si el usuario encontrado tiene el rol ADMINISTRATIVE
+        return user.isPresent() && "ADMINISTRATIVE".equals(user.get().getUserRole());
+    }
+
     // Método para actualizar el rol del usuario
     public boolean updateUserRole(String userName, String newRole) {
         User user = userRepository.findByUserName(userName);
@@ -101,7 +109,7 @@ public class UserService {
                 System.out.println("ROL ACTUALIZADO");
                 Role role = Role.valueOf(newRole.toUpperCase());
                 user.setUserRole(role.name());
-                userRepository.save(user);  // Guardar los cambios en la base de datos
+                userRepository.save(user); // Guardar los cambios en la base de datos
                 return true;
             } catch (IllegalArgumentException e) {
                 // Si el rol no es válido, capturamos la excepción
