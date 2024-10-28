@@ -1,10 +1,13 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +32,8 @@ public class UserController {
     private final UserService userService;
 
     // crear usuarios
-    @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
+
+    @CrossOrigin("http://127.0.0.1:5500")
     @PostMapping("/create")
     public ResponseEntity<String> createUser(@RequestBody User user) {
         boolean chek = userService.createUser(user);
@@ -39,6 +43,17 @@ public class UserController {
             return ResponseEntity.status(404).body("Usuario no creado");
         }
     }
+
+    // @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
+    // @PostMapping("/create")
+    // public ResponseEntity<String> createUser(@RequestBody User user) {
+    //     boolean chek = userService.createUser(user);
+    //     if (chek) {
+    //         return ResponseEntity.ok("Usuario creado exitosamente");
+    //     } else {
+    //         return ResponseEntity.status(404).body("Usuario no creado");
+    //     }
+    // }
 
     // eliminar usuarios
     @DeleteMapping("/delete/{id}")
@@ -83,16 +98,30 @@ public class UserController {
     }
 
     // apartado login
-    @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
-    @PostMapping("login")
-    public String loginUser(@RequestParam String rut, @RequestParam String password) {
+    @CrossOrigin("http://127.0.0.1:5500")
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody Map<String, String> loginData) {
+        String rut = loginData.get("rut");
+        String password = loginData.get("password");
+    
         // Validar el login
         if (userService.validateLogin(rut, password)) {
-            return "Login successful!";
+            return ResponseEntity.ok("Login successful!");
         } else {
-            return "Invalid username or password";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
+    
+
+    // @PostMapping("login")
+    // public String loginUser(@RequestParam String rut, @RequestParam String password) {
+    //     // Validar el login
+    //     if (userService.validateLogin(rut, password)) {
+    //         return "Login successful!";
+    //     } else {
+    //         return "Invalid username or password";
+    //     }
+    // }
 
     // apartado para eliminar usuarios
     @DeleteMapping("/deleteUser/{adminName}")
@@ -138,5 +167,11 @@ public class UserController {
         } else {
             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    // autenticacion de usuario
+    @GetMapping("/usuario")
+    public String getUsuario(@AuthenticationPrincipal UserDetails userDetails) {
+        return "Usuario autenticado: " + userDetails.getUsername();
     }
 }
