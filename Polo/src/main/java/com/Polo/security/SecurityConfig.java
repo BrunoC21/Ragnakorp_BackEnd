@@ -15,24 +15,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF
-                .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/user/login", "/user/create").permitAll() // Rutas públicas
-                .anyRequest().authenticated() // Rutas protegidas
-                )
-                .formLogin(form -> form.disable()) // Desactivar formulario de login predeterminado
-                .logout(logout -> logout
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/user/login", "/user/create", "/user/sessionInfo").permitAll()
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form.disable())
+            .logout(logout -> logout
                 .logoutUrl("/user/logout")
                 .logoutSuccessUrl("/user/login?logout=true")
                 .permitAll()
-                )
-                .sessionManagement(session -> session
+            )
+            .sessionManagement(session -> session
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(true)
-                )
-                .exceptionHandling(ex -> ex
+            )
+            .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                ); // Retornar 401 en caso de fallo
+            );
 
         return http.build();
     }

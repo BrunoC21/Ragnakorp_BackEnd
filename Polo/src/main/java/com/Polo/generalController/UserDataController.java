@@ -1,5 +1,7 @@
 package com.Polo.generalController;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,17 +18,25 @@ public class UserDataController {
 
     // Método para obtener datos de usuario desde la sesión
     @GetMapping("/session-info")
-    public ResponseEntity<String> getSessionInfo(HttpSession session) {
+    public ResponseEntity<Object> getSessionInfo(HttpSession session) {
         String userRut = (String) session.getAttribute("userRut");
         String username = (String) session.getAttribute("username");
         String lastName = (String) session.getAttribute("lastName");
         String role = (String) session.getAttribute("role");
 
+        System.out.println(userRut + " " + username + " " + userRut);
+
         if (userRut != null) {
-            // Devuelve los datos en el formato deseado
-            return ResponseEntity.ok("Usuario en sesión: " + userRut + ", Nombre: " + username + ", Apellido: " + lastName + ", Rol: " + role);
+            return ResponseEntity.ok().body(Map.of(
+                "userRut", userRut,
+                "username", username,
+                "lastName", lastName,
+                "role", role
+            ));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay sesión iniciada");
         }
     }
+
+    
 }

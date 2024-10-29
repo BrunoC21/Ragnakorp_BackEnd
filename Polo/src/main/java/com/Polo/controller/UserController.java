@@ -1,8 +1,10 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +32,9 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin("http://127.0.0.1:5500")
 public class UserController {
 
-    private final UserService userService;
+    // private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     // crear usuarios
     @PostMapping("/create")
@@ -89,16 +93,19 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
         Optional<User> user = userService.findUserByRut(rut);
-        // Validar el login
         if (user.isPresent() && userService.validateLogin(rut, password)) {
             User userSession = user.get();
-            // Crear datos de sesión
-            session.setAttribute("userRut", rut);  // Guarda el rut en la sesión
-            session.setAttribute("username", userSession.getUserName()); // guarda el nombre de la sesion
-            session.setAttribute("lastName", userSession.getUserLastName()); // guarda el apellido de la sesion
-            session.setAttribute("role", userSession.getUserRole()); // guarda el rol de la sesion
+            session.setAttribute("userRut", userSession.getUserRut());
+            session.setAttribute("username", userSession.getUserName());
+            session.setAttribute("correo", userSession.getUserEmail());
+            session.setAttribute("role", userSession.getUserRole());
 
             System.out.println("Sesion iniciada correctamente");
+            System.out.println(session.getAttribute("username"));
+            System.out.println(session.getAttribute("userRut"));
+            System.out.println(session.getAttribute("role"));
+            System.out.println(session.getAttribute("correo"));
+
             return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
@@ -159,19 +166,28 @@ public class UserController {
     }
 
     // Método para obtener datos de usuario (verificación de sesión)
-    @GetMapping("/session-info")
-    public ResponseEntity<String> getSessionInfo(HttpSession session) {
+    @CrossOrigin(allowCredentials = "true")
+    @GetMapping("/sessionInfo")
+    public ResponseEntity<Object> getSessionInfo(HttpSession session) {
         String userRut = (String) session.getAttribute("userRut");
         String username = (String) session.getAttribute("username");
-        String lastName = (String) session.getAttribute("lastName");
+        String correo = (String) session.getAttribute("correo");
         String role = (String) session.getAttribute("role");
 
-        if (userRut != null) {
-            return ResponseEntity.ok("Usuario en sesión: " + userRut + ", Nombre: " + username + ", Apellido: " + lastName + ", Rol: " + role);
-        } else {
+        if (userRut == null) {
+            System.out.println(userRut);
+            System.out.println("NO HAY SESION INICIADA");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay sesión iniciada");
         }
+
+        return ResponseEntity.ok(Map.of(
+            "userRut", userRut,
+            "username", username,
+            "correo", correo,
+            "role", role
+        ));
     }
+
 
     // Método de logout
     @PostMapping("/logout")
