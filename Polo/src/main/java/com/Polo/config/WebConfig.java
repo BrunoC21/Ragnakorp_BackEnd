@@ -6,12 +6,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Permitir todas las rutas
-                .allowedOrigins("http://127.0.0.1:5500") // Cambia esto si es necesario
+        registry.addMapping("/proyecto/user/**") // Permitir todas las rutas
+                .allowedOrigins("http://127.0.0.1:5500") // Cambiar esto si es necesario
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

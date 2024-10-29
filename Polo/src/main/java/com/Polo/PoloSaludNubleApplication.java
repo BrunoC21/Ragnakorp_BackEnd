@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class PoloSaludNubleApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PoloSaludNubleApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PoloSaludNubleApplication.class, args);
+    }
 
 }
