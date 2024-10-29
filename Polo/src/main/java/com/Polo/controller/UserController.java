@@ -1,14 +1,11 @@
 package com.Polo.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.User;
+import com.Polo.model.UserDTO;
+import com.Polo.model.UserMapper;
 import com.Polo.service.UserService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -36,14 +34,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     // crear usuarios
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody User user) {
-        boolean chek = userService.createUser(user);
-        if (chek) {
-            return ResponseEntity.ok("Usuario creado exitosamente");
+    public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
+        // Convertir UserDTO a User
+        User user = userMapper.userDTOToUser(userDTO);
+
+        // Llamar al servicio para crear el usuario
+        boolean check = userService.createUser(user);
+        if (check) {
+            return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado exitosamente");
         } else {
-            return ResponseEntity.status(404).body("Usuario no creado");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario no creado");
         }
     }
 
@@ -60,52 +65,53 @@ public class UserController {
 
     // buscar todos los usuarios
     @GetMapping("/search")
-    public List<User> findAllUsers() {
-        return userService.findAllUsers();
+    public ResponseEntity<List<UserDTO>> findAllUsers() {
+        List<UserDTO> userDTOList = userService.findAllUsers();
+        if (!userDTOList.isEmpty()) {
+            return new ResponseEntity<>(userDTOList, HttpStatus.OK);
+        } else { 
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // buscar usuario por id
     @GetMapping("/search/{id}")
-    public Optional<User> findUserById(@PathVariable int id) {
-        Optional<User> user = userService.findUserById(id);
-        if (user.isPresent()) {
-            return user;
+    public ResponseEntity<UserDTO> findUserById(@PathVariable int id) {
+        Optional<UserDTO> userDTO = userService.findUserById(id);
+        if (userDTO.isPresent()) {
+            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
         } else {
-            return null;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     // buscar usuario por nombre
     @GetMapping("search/rut/{userRut}")
-    public ResponseEntity<User> findUserByRut(@PathVariable String userRut) {
-        Optional<User> user = userService.findUserByRut(userRut);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    public ResponseEntity<UserDTO> findUserByRut(@PathVariable String userRut) {
+        Optional<UserDTO> userDTO = userService.findUserByRut(userRut);
+        if (userDTO.isPresent()) {
+            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // buscar usuario por nombre
     @GetMapping("search/name/{userName}")
-    public ResponseEntity<User> findUserByName(@PathVariable String userName) {
-        Optional<User> user = userService.findUserByName(userName);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    public ResponseEntity<UserDTO> findUserByName(@PathVariable String userName) {
+        Optional<UserDTO> userDTO = userService.findUserByName(userName);
+        if (userDTO.isPresent()) {
+            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // apartado login
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
-        Optional<User> user = userService.findUserByRut(rut);
-        if (user.isPresent() && userService.validateLogin(rut, password)) {
-            User userSession = user.get();
-            session.setAttribute("userRut", userSession.getUserRut());
-            session.setAttribute("username", userSession.getUserName());
-            session.setAttribute("correo", userSession.getUserEmail());
-            session.setAttribute("role", userSession.getUserRole());
-
-            System.out.println("Sesion iniciada correctamente");
-            System.out.println(session.getAttribute("username"));
-            System.out.println(session.getAttribute("userRut"));
-            System.out.println(session.getAttribute("role"));
-            System.out.println(session.getAttribute("correo"));
-
+    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password) {
+        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
+        if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
             return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
@@ -140,13 +146,13 @@ public class UserController {
     }
 
     // apartado para asignar roles a los usuarios
-    // @PutMapping("/assignRole/{adminName}")
-    @PutMapping("/assignRole")
-    public ResponseEntity<String> assignRoleByAdmin(/*@PathVariable String adminName, */@RequestParam String userName, @RequestParam String newRole, HttpSession session) {
+    @PutMapping("/assignRole/{adminName}")
+    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminName, @RequestParam String userName, @RequestParam String newRole) {
 
-        String sessionRole = (String) session.getAttribute("role"); // Verificar si el usuario que está intentando asignar es ADMIN
-        if (sessionRole == null || !sessionRole.equals("ADMIN")) {
-            return new ResponseEntity<>("User is not an ADMIN", HttpStatus.FORBIDDEN);
+        if (!userService.isAdmin(adminName)) {
+            return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("El admin name esta correcto");
         }
 
         // Intentar asignar el nuevo rol al usuario
@@ -157,43 +163,6 @@ public class UserController {
         } else {
             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
         }
-    }
-
-    // autenticacion de usuario
-    @GetMapping("/usuario")
-    public String getUsuario(@AuthenticationPrincipal UserDetails userDetails) {
-        return "Usuario autenticado: " + userDetails.getUsername();
-    }
-
-    // Método para obtener datos de usuario (verificación de sesión)
-    @CrossOrigin(allowCredentials = "true")
-    @GetMapping("/sessionInfo")
-    public ResponseEntity<Object> getSessionInfo(HttpSession session) {
-        String userRut = (String) session.getAttribute("userRut");
-        String username = (String) session.getAttribute("username");
-        String correo = (String) session.getAttribute("correo");
-        String role = (String) session.getAttribute("role");
-
-        if (userRut == null) {
-            System.out.println(userRut);
-            System.out.println("NO HAY SESION INICIADA");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay sesión iniciada");
-        }
-
-        return ResponseEntity.ok(Map.of(
-            "userRut", userRut,
-            "username", username,
-            "correo", correo,
-            "role", role
-        ));
-    }
-
-
-    // Método de logout
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpSession session) {
-        session.invalidate();  // Invalida la sesión
-        return ResponseEntity.ok("Logout correcto");
     }
 
 }

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.Polo.model.User;
+import com.Polo.model.UserDTO;
 import com.Polo.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +32,7 @@ public class UserServiceTest {
         when(userRepository.findAll()).thenReturn(usuarios);
 
         // Act
-        List<User> resultado = userService.findAllUsers(); // Llama al método de servicio
+        List<UserDTO> resultado = userService.findAllUsers(); // Llama al método de servicio
 
         // Assert
         assertNotNull(resultado); // Verifica que la lista no sea nula

@@ -3,6 +3,7 @@ package com.Polo.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
-import com.Polo.model.Project;
+import com.Polo.model.*;
 import com.Polo.service.ProjectService;
 import com.Polo.service.UserService;
 
@@ -26,14 +27,19 @@ public class ProjectController {
     private final ProjectService projectService;
     private final UserService userService;
 
+    private final ProjectMapper projectMapper;
+
     // crear proyectos
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody Project project) {
+    public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
+
+        Project project = projectMapper.projectDTOToProject(projectDTO);
+
         boolean chek = projectService.createProject(project);
         if (chek) {
-            return ResponseEntity.ok("Proyecto creado exitosamente");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
         } else {
-            return ResponseEntity.status(404).body("Proyecto no creado");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
         }
     }
 
@@ -50,25 +56,30 @@ public class ProjectController {
 
     // buscar todos los proyectos
     @GetMapping("/search")
-    public List<Project> findAllProjects() {
-        return projectService.findAllProjects();
+    public ResponseEntity<List<ProjectDTO>> findAllProjects() {
+        List<ProjectDTO> projectDTOList = projectService.findAllProjects();
+        if (!projectDTOList.isEmpty()) {
+            return new ResponseEntity<>(projectDTOList, HttpStatus.OK);
+        } else { 
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // buscar proyecto por id
     @GetMapping("/search/{id}")
-    public Optional<Project> findByProjectId(@PathVariable int id) {
-        Optional<Project> project = projectService.findByProjectId(id);
-        if (project.isPresent()) {
-            return project;
+    public ResponseEntity<ProjectDTO> findByProjectId(@PathVariable int id) {
+        Optional<ProjectDTO> projectDTO = projectService.findByProjectId(id);
+        if (projectDTO.isPresent()) {
+            return new ResponseEntity<>(projectDTO.get(),HttpStatus.OK);
         } else {
-            return null;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     // buscar proyecto por nombre
     @GetMapping("/search/name/{projName}")
-    public ResponseEntity<Project> findByProjName(@PathVariable String projName) {
-        Optional<Project> project = projectService.findByProjName(projName);
+    public ResponseEntity<ProjectDTO> findByProjName(@PathVariable String projName) {
+        Optional<ProjectDTO> project = projectService.findByProjName(projName);
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 

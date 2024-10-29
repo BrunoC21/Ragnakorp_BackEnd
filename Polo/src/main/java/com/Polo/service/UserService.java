@@ -3,9 +3,10 @@ package com.Polo.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
-import com.Polo.model.User;
+import com.Polo.model.*;
 import com.Polo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    private final UserMapper mapper = Mappers.getMapper(UserMapper.class);
+
     public boolean createUser(User user) {
         if (user != null) {
-            // Validar si el usuario ya existe por el email o username
-            User existingUser = userRepository.findByUserRut(user.getUserRut());
-            if (existingUser != null) {
+            // Validar si el usuario ya existe por el userRut
+            Optional<User> existingUser = userRepository.findByUserRut(user.getUserRut());
+            if (existingUser == null) {
                 System.out.println("El usuario ya existe.");
                 return false;
             } else {
@@ -35,22 +38,37 @@ public class UserService {
         }
     }
 
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> findAllUsers() {
+        List<User> userList = userRepository.findAll();
+        List<UserDTO> userDTOList;
+        userDTOList = mapper.userListToUserDTOList(userList);
+        return userDTOList;
     }
 
-    public Optional<User> findUserById(int id) {
-        return userRepository.findById(id);
+    public Optional<UserDTO> findUserById(int id) {
+        Optional<User> optional = userRepository.findById(id);
+        if (optional.isPresent()) {
+            return Optional.of(mapper.userToUserDTO(optional.get()));
+        }
+        return Optional.empty();
     }
 
     // busqueda de usuario por rut
-    public Optional<User> findUserByRut(String userRut) {
-        return Optional.ofNullable(userRepository.findByUserRut(userRut));
+    public Optional<UserDTO> findUserByRut(String userRut) {
+        Optional<User> optional = userRepository.findByUserRut(userRut);
+        if (optional.isPresent()) {
+            return Optional.of(mapper.userToUserDTO(optional.get()));
+        }
+        return Optional.empty();
     }
 
     // busqueda de usuario por nombre
-    public Optional<User> findUserByName(String userName) {
-        return Optional.ofNullable(userRepository.findByUserName(userName));
+    public Optional<UserDTO> findUserByName(String userName) {
+        Optional<User> optional = userRepository.findByUserName(userName);
+        if (optional.isPresent()) {
+            return Optional.of(mapper.userToUserDTO(optional.get()));
+        }
+        return Optional.empty();
     }
 
     public boolean deleteUser(int id) {
@@ -63,14 +81,14 @@ public class UserService {
 
     // Método para eliminar al usuario
     public boolean deleteUserByName(String userName) {
-        User user = userRepository.findByUserName(userName);
+        Optional<User> optional = userRepository.findByUserName(userName);
 
         // Si el usuario existe, lo eliminamos
-        if (user != null) {
-            if (isAdmin(user.getUserName())) {
+        if (optional != null) {
+            if (isAdmin(optional.get().getUserName())) {
                 return false;
             }
-            userRepository.delete(user);
+            userRepository.delete(optional.get());
             return true;
         }
         return false;
@@ -78,16 +96,16 @@ public class UserService {
 
     // login user
     public boolean validateLogin(String rut, String password) {
-        User user = userRepository.findByUserRut(rut);
-        return user != null && user.getUserPassword().equals(password);
+        Optional<User> optional = userRepository.findByUserRut(rut);
+        return optional != null && optional.get().getUserPassword().equals(password);
     }
 
     // Método para verificar si el usuario es ADMIN
     public boolean isAdmin(String userName) {
-        User user = userRepository.findByUserName(userName);
+        Optional<User> optional = userRepository.findByUserName(userName);
 
         // Verificar si el usuario tiene el rol ADMIN
-        return user != null && "ADMIN".equals(user.getUserRole());
+        return optional != null && "ADMIN".equals(optional.get().getUserRole());
     }
 
     // Metodo para verificar si el usuario es Adminsitrativo
@@ -100,16 +118,16 @@ public class UserService {
 
     // Método para actualizar el rol del usuario
     public boolean updateUserRole(String userName, String newRole) {
-        User user = userRepository.findByUserName(userName);
+        Optional<User> optional = userRepository.findByUserName(userName);
         
         // Si el usuario existe, actualizar su rol
-        if (user != null) {
+        if (optional != null) {
             System.out.println("USUARIO ENCONTRADO");
             try {
                 System.out.println("ROL ACTUALIZADO");
                 Role role = Role.valueOf(newRole.toUpperCase());
-                user.setUserRole(role.name());
-                userRepository.save(user); // Guardar los cambios en la base de datos
+                optional.get().setUserRole(role.name());
+                userRepository.save(optional.get()); // Guardar los cambios en la base de datos
                 return true;
             } catch (IllegalArgumentException e) {
                 // Si el rol no es válido, capturamos la excepción

@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @Entity
-public class EnviromentVinculation {
+public class EnvironmentVinculation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_vinculation", nullable = false)
@@ -28,6 +28,4 @@ public class EnviromentVinculation {
     @ManyToOne
     @JoinColumn(name = "activity_iduser", nullable = false) // Clave foránea
     private User user;
-
-    // Falta relacion ManyToMany con User
 }
