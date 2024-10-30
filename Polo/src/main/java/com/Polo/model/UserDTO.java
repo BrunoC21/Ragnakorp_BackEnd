@@ -1,6 +1,5 @@
 package com.Polo.model;
 
-import java.util.List;
 import lombok.Data;
 
 @Data
@@ -13,7 +12,4 @@ public class UserDTO {
     private String userPhone;
     private String userPassword;
     private String userRole;
-    private List<ProjectDTO> projects;
-    private List<PostulationDTO> postulations;
-    private List<NewsDTO> news;
 }

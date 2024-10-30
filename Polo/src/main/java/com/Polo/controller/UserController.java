@@ -96,7 +96,7 @@ public class UserController {
         }
     }
 
-    // buscar usuario por nombre
+    // buscar usuario por nombre REVISAR
     @GetMapping("search/name/{userName}")
     public ResponseEntity<UserDTO> findUserByName(@PathVariable String userName) {
         Optional<UserDTO> userDTO = userService.findUserByName(userName);
@@ -112,31 +112,28 @@ public class UserController {
     public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password) {
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
         if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
+            System.out.println("SESION INICIADA CORRECTAMENTE");
             return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
 
-    // apartado para eliminar usuarios
-    @DeleteMapping("/deleteUser/{adminName}")
-    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminName, @RequestParam String userName) {
+    // apartado para eliminar usuarios  REVISAR
+    @DeleteMapping("/delete/admin/{adminRut}")
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestParam String userRut) {
 
         // Validar si el usuario que está solicitando es ADMIN
-        if (!userService.isAdmin(adminName)) {
+        if (!userService.isAdminByRut(adminRut)) {
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
         } else {
-            System.out.println("El admin name esta correcto");
-        }
-
-        if (userService.isAdmin(userName)) {
-            return new ResponseEntity<>("User trying to delete is an ADMIN", HttpStatus.FORBIDDEN);
-        } else {
-            System.out.println("El user name esta correcto");
+            System.out.println("---------------");
+            System.out.println("ADMIN CORRECTO");
+            System.out.println("---------------");
         }
 
         // Intentar eliminar al usuario
-        boolean check = userService.deleteUserByName(userName);
+        boolean check = userService.deleteUserByRut(userRut);
 
         if (check) {
             return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
@@ -145,18 +142,18 @@ public class UserController {
         }
     }
 
-    // apartado para asignar roles a los usuarios
-    @PutMapping("/assignRole/{adminName}")
-    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminName, @RequestParam String userName, @RequestParam String newRole) {
+    // apartado para asignar roles a los usuarios REVISAR
+    @PutMapping("/assignRole/{adminRut}")
+    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole) {
 
-        if (!userService.isAdmin(adminName)) {
+        if (!userService.isAdminByRut(adminRut)) {
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
         } else {
             System.out.println("El admin name esta correcto");
         }
 
         // Intentar asignar el nuevo rol al usuario
-        boolean isUpdated = userService.updateUserRole(userName, newRole);
+        boolean isUpdated = userService.updateUserRole(userRut, newRole);
 
         if (isUpdated) {
             return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);

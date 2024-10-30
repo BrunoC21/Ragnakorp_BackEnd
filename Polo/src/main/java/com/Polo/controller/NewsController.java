@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.service.NewsService;
+import com.Polo.service.UserService;
 import com.Polo.model.*;
 
 import lombok.RequiredArgsConstructor;
@@ -26,22 +28,46 @@ public class NewsController {
 
     @Autowired
     private NewsService newsService;
+
+    @Autowired
+    private UserService userService;
     
     @Autowired
     private NewsMapper newsMapper;
 
     // crear noticia
-    @PostMapping("/create")
-    public ResponseEntity<String> createNew(@RequestBody NewsDTO newsDTO) {
+    // @PostMapping("/create")
+    // public ResponseEntity<String> createNew(@RequestBody NewsDTO newsDTO) {
+    //     News news = newsMapper.newsDTOToNews(newsDTO);
+
+    //     boolean chek = newsService.createNews(news, null);
+    //     if (chek) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
+    //     }
+    // }
+
+    // crear noticia por adminstradores
+    @PostMapping("/create/{adminRut}")
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO) {
+
+        // Validar si el usuario que está solicitando es ADMIN
+        if (!userService.isAdministrativeRut(adminRut)) {
+            return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("El admin name esta correcto");
+        }
+
         News news = newsMapper.newsDTOToNews(newsDTO);
 
-        boolean chek = newsService.createNews(news);
+        boolean chek = newsService.createNews(news, adminRut);
         if (chek) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado exitosamente");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario no creado");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
         }
-    }
+    } 
 
     // eliminar usuarios
     @DeleteMapping("/delete/{id}")
@@ -67,7 +93,7 @@ public class NewsController {
 
     // buscar usuario por id
     @GetMapping("/search/{id}")
-    public ResponseEntity<NewsDTO> findUserById(@PathVariable int id) {
+    public ResponseEntity<NewsDTO> findNewsById(@PathVariable int id) {
         Optional<NewsDTO> newsDTO = newsService.findNewsById(id);
         if (newsDTO.isPresent()) {
             return new ResponseEntity<>(newsDTO.get(),HttpStatus.OK);

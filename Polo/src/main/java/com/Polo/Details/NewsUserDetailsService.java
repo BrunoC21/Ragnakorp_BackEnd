@@ -17,12 +17,12 @@ public class NewsUserDetailsService {
 
     private final UserRepository userRepository;
 
-    public void saveDetails(News news) {
+    public void saveDetails(News news, String adminRut) {
         String newsWriter = news.getNewsWriter();
 
         // Buscar el usuario por su nombre
-        Optional<User> user = userRepository.findByUserName(newsWriter);
-        if (user != null) {
+        Optional<User> user = userRepository.findByUserRut(adminRut);
+        if (user.isPresent()) {
             
             // Agregar la noticia a la lista de noticias del usuario
             if (user.get().getNews() == null) {

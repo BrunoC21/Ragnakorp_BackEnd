@@ -9,6 +9,6 @@ public class PostulationDTO {
     private String postulationName;
     private String postulationDescription;
     private String postulationProject;
-    private List<UserDTO> user;
-    private List<ProjectDTO> project;
+    // private List<UserDTO> user;
+    // private List<ProjectDTO> project;
 }

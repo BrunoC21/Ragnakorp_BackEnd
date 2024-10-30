@@ -21,10 +21,10 @@ public class NewsService {
 
     private final NewsMapper mapper = Mappers.getMapper(NewsMapper.class);
 
-    public boolean createNews(News news) {
+    public boolean createNews(News news, String userRut) {
         if (news != null) {
             newsRepository.save(news);
-            newsUserDetailsService.saveDetails(news);
+            newsUserDetailsService.saveDetails(news, userRut);
             return true;
         } else {
             System.out.println("Error al crear la noticia");

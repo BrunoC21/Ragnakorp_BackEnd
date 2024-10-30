@@ -12,6 +12,6 @@ public class ChangesDTO {
     private String changesThing;
     private String changesType;
     private UserDTO changeIdUser;
-    private List<NewsDTO> newsChange;
-    private List<ProjectDTO> projectChange;
+    // private List<NewsDTO> newsChange;
+    // private List<ProjectDTO> projectChange;
 }

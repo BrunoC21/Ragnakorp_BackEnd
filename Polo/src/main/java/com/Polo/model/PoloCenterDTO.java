@@ -1,5 +1,8 @@
 package com.Polo.model;
 
+import lombok.Data;
+
+@Data
 public class PoloCenterDTO {
     private Integer id;
     private String centerName;

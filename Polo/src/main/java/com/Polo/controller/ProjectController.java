@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +23,7 @@ import com.Polo.service.UserService;
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
-
+@CrossOrigin("http://127.0.0.1:5500")
 public class ProjectController {
     private final ProjectService projectService;
     private final UserService userService;
@@ -35,7 +36,7 @@ public class ProjectController {
 
         Project project = projectMapper.projectDTOToProject(projectDTO);
 
-        boolean chek = projectService.createProject(project);
+        boolean chek = projectService.createProject(project, null);
         if (chek) {
             return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
         } else {
@@ -84,20 +85,18 @@ public class ProjectController {
     }
 
     @PostMapping("/create/{administrativeName}/{userRut}")
-    public ResponseEntity<String> createProjectByAdministrativeName(
-            @PathVariable String administrativeName,
-            @PathVariable String userRut,
-            @RequestBody Project project) {
-
+    public ResponseEntity<String> createProjectByAdministrativeName(@PathVariable String administrativeName, @PathVariable String userRut, @RequestBody Project project) {
+    
         if (!userService.isAdministrative(administrativeName, userRut)) {
             return ResponseEntity.status(403).body("No tienes permisos para crear un proyecto");
         }
-
-        boolean chek = projectService.createProject(project);
+    
+        boolean chek = projectService.createProject(project, userRut);
         if (chek) {
             return ResponseEntity.ok("Proyecto creado exitosamente");
         } else {
             return ResponseEntity.status(400).body("Proyecto no creado");
         }
     }
+    
 }

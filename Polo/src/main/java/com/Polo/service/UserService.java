@@ -80,19 +80,26 @@ public class UserService {
     }
 
     // Método para eliminar al usuario
-    public boolean deleteUserByName(String userName) {
-        Optional<User> optional = userRepository.findByUserName(userName);
-
-        // Si el usuario existe, lo eliminamos
-        if (optional != null) {
+    public boolean deleteUserByRut(String userRut) {
+        Optional<User> optional = userRepository.findByUserRut(userRut);
+    
+        if (optional.isPresent()) {
             if (isAdmin(optional.get().getUserName())) {
-                return false;
+                System.out.println("No se puede eliminar al usuario ADMIN: " + optional.get().getUserName());
+                return false; // No se puede eliminar a un admin
             }
+            System.out.println("Usuario eliminado: " + optional.get().getUserName());
             userRepository.delete(optional.get());
             return true;
+        } else {
+            System.out.println("Usuario no encontrado con RUT: " + userRut); // Mensaje adicional
         }
-        return false;
+        System.out.println("---------------");
+        System.out.println("NO ENCONTRADO");
+        System.out.println("---------------");
+        return false; // El usuario no existía
     }
+    
 
     // login user
     public boolean validateLogin(String rut, String password) {
@@ -103,25 +110,64 @@ public class UserService {
     // Método para verificar si el usuario es ADMIN
     public boolean isAdmin(String userName) {
         Optional<User> optional = userRepository.findByUserName(userName);
-
-        // Verificar si el usuario tiene el rol ADMIN
-        return optional != null && "ADMIN".equals(optional.get().getUserRole());
+    
+        if (optional.isPresent()) {
+            System.out.println("Usuario encontrado: " + optional.get().getUserName() + ", Rol: " + optional.get().getUserRole());
+            return "ADMIN".equals(optional.get().getUserRole());
+        } else {
+            System.out.println("Usuario no encontrado: " + userName);
+            return false;
+        }
     }
+
+    public boolean isAdminByRut(String userRut) {
+        Optional<User> user = userRepository.findByUserRut(userRut);
+        // Verifica si el usuario está presente
+        if (user.isPresent()) {
+            System.out.println(user.get().getUserRole()); // Ahora está seguro de que hay un valor
+            return "ADMIN".equals(user.get().getUserRole());
+        }
+        // Retorna false si el usuario no existe
+        return false;
+    }
+    
+    
 
     // Metodo para verificar si el usuario es Adminsitrativo
     public boolean isAdministrative(String userName, String userRut) {
-        Optional<User> user = userRepository.findByUserNameAndUserRut(userName, userRut);
-        System.out.println(user.get().getUserRole());
-        // Verificar si el usuario encontrado tiene el rol ADMINISTRATIVE
-        return user.isPresent() && "ADMINISTRATIVE".equals(user.get().getUserRole());
+        Optional<User> user = userRepository.findByUserRut(userRut);
+        // Verifica si el usuario está presente
+        if (user.isPresent()) {
+            System.out.println(user.get().getUserRole()); // Ahora está seguro de que hay un valor
+            return "ADMINISTRATIVE".equals(user.get().getUserRole());
+        }
+        // Retorna false si el usuario no existe
+        return false;
     }
 
+
+    // Metodo para verificar si el usuario es Adminsitrativo
+    public boolean isAdministrativeRut(String userRut) {
+        Optional<User> user = userRepository.findByUserRut(userRut);
+        // Verifica si el usuario está presente
+        if (user.isPresent()) {
+            System.out.println(user.get().getUserRole()); // Ahora está seguro de que hay un valor
+            return "ADMINISTRATIVE".equals(user.get().getUserRole());
+        }
+        // Retorna false si el usuario no existe
+        return false;
+    }
+    
+    
+
     // Método para actualizar el rol del usuario
-    public boolean updateUserRole(String userName, String newRole) {
-        Optional<User> optional = userRepository.findByUserName(userName);
+    public boolean updateUserRole(String userRut, String newRole) {
+        Optional<User> optional = userRepository.findByUserRut(userRut);
+
+        System.out.println(optional.get().getUserName());
         
         // Si el usuario existe, actualizar su rol
-        if (optional != null) {
+        if (optional.isPresent()) {
             System.out.println("USUARIO ENCONTRADO");
             try {
                 System.out.println("ROL ACTUALIZADO");

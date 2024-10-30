@@ -2,6 +2,9 @@ package com.Polo.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,7 +41,6 @@ public class User {
     @Column(name = "user_phone", nullable = false)
     private String userPhone;
 
-    // @JsonIgnore
     @Column(name = "user_password", nullable = false)
     private String userPassword;
 
@@ -47,6 +49,7 @@ public class User {
 
     // tabla relacion con users
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "user_project", // nombre tabla intermedia
             joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
             inverseJoinColumns = @JoinColumn(name = "proj_id")) // Columna que referencia a project
@@ -54,6 +57,7 @@ public class User {
 
     // tabla relacion con postulation
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "user_postulation", // nombre tabla intermedia
             joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
             inverseJoinColumns = @JoinColumn(name = "id_postulation")) // Columna que referencia a project
@@ -61,6 +65,7 @@ public class User {
 
     // tabla relacion con news
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "user_news", // nombre tabla intermedia
             joinColumns = @JoinColumn(name = "user_id"), // columna que hace referencia a usuario
             inverseJoinColumns = @JoinColumn(name = "news_code")) // Columna que referencia a project
