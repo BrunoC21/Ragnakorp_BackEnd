@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
-import com.Polo.model.*;
+import com.Polo.model.User;
+import com.Polo.model.UserDTO;
+import com.Polo.model.UserMapper;
 import com.Polo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -82,7 +84,7 @@ public class UserService {
     // Método para eliminar al usuario
     public boolean deleteUserByRut(String userRut) {
         Optional<User> optional = userRepository.findByUserRut(userRut);
-    
+
         if (optional.isPresent()) {
             if (isAdmin(optional.get().getUserName())) {
                 System.out.println("No se puede eliminar al usuario ADMIN: " + optional.get().getUserName());
@@ -99,7 +101,6 @@ public class UserService {
         System.out.println("---------------");
         return false; // El usuario no existía
     }
-    
 
     // login user
     public boolean validateLogin(String rut, String password) {
@@ -110,7 +111,7 @@ public class UserService {
     // Método para verificar si el usuario es ADMIN
     public boolean isAdmin(String userName) {
         Optional<User> optional = userRepository.findByUserName(userName);
-    
+
         if (optional.isPresent()) {
             System.out.println("Usuario encontrado: " + optional.get().getUserName() + ", Rol: " + optional.get().getUserRole());
             return "ADMIN".equals(optional.get().getUserRole());
@@ -130,8 +131,6 @@ public class UserService {
         // Retorna false si el usuario no existe
         return false;
     }
-    
-    
 
     // Metodo para verificar si el usuario es Adminsitrativo
     public boolean isAdministrative(String userName, String userRut) {
@@ -145,7 +144,6 @@ public class UserService {
         return false;
     }
 
-
     // Metodo para verificar si el usuario es Adminsitrativo
     public boolean isAdministrativeRut(String userRut) {
         Optional<User> user = userRepository.findByUserRut(userRut);
@@ -154,18 +152,17 @@ public class UserService {
             System.out.println(user.get().getUserRole()); // Ahora está seguro de que hay un valor
             return "ADMINISTRATIVE".equals(user.get().getUserRole());
         }
+        System.out.println("Usuario no encontrado");
         // Retorna false si el usuario no existe
         return false;
     }
-    
-    
 
     // Método para actualizar el rol del usuario
     public boolean updateUserRole(String userRut, String newRole) {
         Optional<User> optional = userRepository.findByUserRut(userRut);
 
         System.out.println(optional.get().getUserName());
-        
+
         // Si el usuario existe, actualizar su rol
         if (optional.isPresent()) {
             System.out.println("USUARIO ENCONTRADO");
