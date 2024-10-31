@@ -25,7 +25,7 @@ public class UserService {
         if (user != null) {
             // Validar si el usuario ya existe por el userRut
             Optional<User> existingUser = userRepository.findByUserRut(user.getUserRut());
-            if (existingUser == null) {
+            if (existingUser.isPresent()) {
                 System.out.println("El usuario ya existe.");
                 return false;
             } else {

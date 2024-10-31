@@ -1,20 +1,21 @@
 package com.Polo.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.Polo.model.User;
-import com.Polo.model.UserDTO;
+import com.Polo.model.UserMapper;
 import com.Polo.repository.UserRepository;
+import org.mapstruct.factory.Mappers;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -22,51 +23,106 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
     @InjectMocks
     private UserService userService;
 
+    // Test para verificar la creación de usuario
     @Test
-    void siInvocoFindUsuariosYExistenUsuariosDebeRetornarListaUsuario() {
+    void siUsuarioNoExisteDebeCrearUsuario() {
         // Arrange
-        List<User> usuarios = getListaUsers(); // Crea una lista de usuarios de prueba
-        when(userRepository.findAll()).thenReturn(usuarios);
+        User user = new User();
+        user.setUserRut("98765432-1");
+        user.setUserLastName("nuñez");
+        user.setUserName("felipe");
+        user.setUserEmail("felipe.nuñez@ejemplo.com");
+        user.setUserPhone("111111111");
+        user.setUserPassword("123");
+        user.setUserRole("ADMINISTRATIVE");
+        when(userRepository.findByUserRut("98765432-1")).thenReturn(Optional.empty());
 
         // Act
-        List<UserDTO> resultado = userService.findAllUsers(); // Llama al método de servicio
+        boolean resultado = userService.createUser(user);
 
         // Assert
-        assertNotNull(resultado); // Verifica que la lista no sea nula
-        assertEquals(usuarios.size(), resultado.size()); // Verifica que el tamaño sea el esperado
-
-        // Verifica que los datos de los usuarios sean los correctos
-        assertEquals(usuarios.get(0).getId(), resultado.get(0).getId());
-        assertEquals(usuarios.get(1).getId(), resultado.get(1).getId());
+        assertTrue(resultado); // El usuario debe ser creado
+        verify(userRepository, times(1)).save(user); // Verifica que se llame a save
     }
 
-    // Método que genera datos de prueba
-    private List<User> getListaUsers() {
-        List<User> usuarios = new ArrayList<>();
+    // Test para verificar que no se crea un usuario ya existente
+    @Test
+    void siUsuarioYaExisteNoDebeCrearUsuario() {
+        // Arrange
+        User user = new User();
+        user.setUserRut("12345678-9");
+        user.setUserLastName("nuñez");
+        user.setUserName("felipe");
+        user.setUserEmail("felipe.nuñez@ejemplo.com");
+        user.setUserPhone("111111111");
+        user.setUserPassword("123");
+        user.setUserRole("ADMINISTRATIVE");
 
-        User user1 = new User();
-        user1.setUserRut("22222222-2");
-        user1.setUserLastName("Pérez");
-        user1.setUserName("Juan");
-        user1.setUserEmail("juan.perez@ejemplo.com");
-        user1.setUserPhone("111111111");
-        user1.setUserPassword("123");
-        user1.setUserRole("ADMINISTRATIVE");
-        usuarios.add(user1);
+        when(userRepository.findByUserRut("12345678-9")).thenReturn(Optional.of(user)); // Mock del usuario existente
 
-        User user2 = new User();
-        user1.setUserRut("33333333-3");
-        user1.setUserLastName("nuñez");
-        user1.setUserName("felipe");
-        user1.setUserEmail("felipe.nuñez@ejemplo.com");
-        user1.setUserPhone("111111111");
-        user1.setUserPassword("123");
-        user1.setUserRole("ADMINISTRATIVE");
-        usuarios.add(user2);
+        // Act
+        boolean resultado = userService.createUser(user);
 
-        return usuarios;
+        // Assert
+        assertFalse(resultado); // El usuario no debe ser creado
+        verify(userRepository, times(0)).save(user); // No se debe llamar a save
+    }
+ 
+    // Test para validación de login correcto
+    @Test
+    void siPasswordEsCorrectaLoginDebeRetornarTrue() {
+        // Arrange
+        User user = new User();
+        user.setUserRut("12345678-9");
+        user.setUserPassword("password123");
+        when(userRepository.findByUserRut("12345678-9")).thenReturn(Optional.of(user));
+
+        // Act
+        boolean resultado = userService.validateLogin("12345678-9", "password123");
+
+        // Assert
+        assertTrue(resultado); // Verifica que el login es válido
+    }
+
+    // Test para verificar la actualización de rol de usuario
+    @Test
+    void siRolEsValidoUpdateUserRoleDebeActualizar() {
+        // Arrange
+        User user = new User();
+        user.setUserRut("12345678-9");
+        user.setUserRole("ESTUDIANTE");
+        when(userRepository.findByUserRut("12345678-9")).thenReturn(Optional.of(user));
+
+        // Act
+        boolean resultado = userService.updateUserRole("12345678-9", "DESARROLLADOR");
+
+        // Assert
+        assertTrue(resultado); // Verifica que el rol se ha actualizado
+        assertEquals("DESARROLLADOR", user.getUserRole()); // El nuevo rol debe ser DESARROLLADOR
+        verify(userRepository, times(1)).save(user); // Verifica que se guarda el cambio
+    }
+
+    // Test para verificar que no se actualiza con rol inválido
+    @Test
+    void siRolNoEsValidoUpdateUserRoleDebeRetornarFalse() {
+        // Arrange
+        User user = new User();
+        user.setUserRut("12345678-9");
+        user.setUserRole("ESTUDIANTE");
+        when(userRepository.findByUserRut("12345678-9")).thenReturn(Optional.of(user));
+
+        // Act
+        boolean resultado = userService.updateUserRole("12345678-9", "INVALID_ROLE");
+
+        // Assert
+        assertFalse(resultado); // Verifica que el rol no se actualiza
+        assertEquals("ESTUDIANTE", user.getUserRole()); // El rol debe permanecer como ESTUDIANTE
+        verify(userRepository, times(0)).save(user); // No se debe llamar a save
     }
 }
