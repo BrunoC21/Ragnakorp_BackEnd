@@ -1,6 +1,7 @@
 package com.Polo.Details;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -17,20 +18,22 @@ public class PostulationUserDetailsService {
     private final UserRepository userRepository;
 
     public void saveDetails(Postulation postulation) {
-        String postulationName = postulation.getPostulationName();
+        // String postulationName = postulation.getPostulationName();
+        String postulationRut = postulation.getPostulationRut();
 
-        User user = userRepository.findByUserName(postulationName);
+        // Optional<User> user = userRepository.findByUserName(postulationName);
+        Optional<User> user = userRepository.findByUserRut(postulationRut);
         if (user != null) {
-            if (user.getPostulation() == null) {
-                user.setPostulation(new ArrayList<>());
+            if (user.get().getPostulation() == null) {
+                user.get().setPostulation(new ArrayList<>());
             }
 
-            if (!user.getPostulation().contains(postulation)) {
-                user.getPostulation().add(postulation);
+            if (!user.get().getPostulation().contains(postulation)) {
+                user.get().getPostulation().add(postulation);
             }
-            userRepository.save(user);
+            userRepository.save(user.get());
         } else {
-            System.out.println("Usuario no encontrado con el nombre: " + postulationName);
+            System.out.println("Usuario no encontrado con el nombre: " + postulationRut);
         }
 
     }

@@ -3,6 +3,7 @@ package com.Polo.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.User;
+import com.Polo.model.UserDTO;
+import com.Polo.model.UserMapper;
 import com.Polo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,19 +27,28 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@CrossOrigin("http://127.0.0.1:5500")
 public class UserController {
 
-    private final UserService userService;
+    // private final UserService userService;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     // crear usuarios
-    @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody User user) {
-        boolean chek = userService.createUser(user);
-        if (chek) {
-            return ResponseEntity.ok("Usuario creado exitosamente");
+    public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
+        // Convertir UserDTO a User
+        User user = userMapper.userDTOToUser(userDTO);
+
+        // Llamar al servicio para crear el usuario
+        boolean check = userService.createUser(user);
+        if (check) {
+            return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado exitosamente");
         } else {
-            return ResponseEntity.status(404).body("Usuario no creado");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario no creado");
         }
     }
 
@@ -53,62 +65,75 @@ public class UserController {
 
     // buscar todos los usuarios
     @GetMapping("/search")
-    public List<User> findAllUsers() {
-        return userService.findAllUsers();
+    public ResponseEntity<List<UserDTO>> findAllUsers() {
+        List<UserDTO> userDTOList = userService.findAllUsers();
+        if (!userDTOList.isEmpty()) {
+            return new ResponseEntity<>(userDTOList, HttpStatus.OK);
+        } else { 
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // buscar usuario por id
     @GetMapping("/search/{id}")
-    public Optional<User> findUserById(@PathVariable int id) {
-        Optional<User> user = userService.findUserById(id);
-        if (user.isPresent()) {
-            return user;
+    public ResponseEntity<UserDTO> findUserById(@PathVariable int id) {
+        Optional<UserDTO> userDTO = userService.findUserById(id);
+        if (userDTO.isPresent()) {
+            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
         } else {
-            return null;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     // buscar usuario por nombre
     @GetMapping("search/rut/{userRut}")
-    public ResponseEntity<User> findUserByRut(@PathVariable String userRut) {
-        Optional<User> user = userService.findUserByRut(userRut);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    public ResponseEntity<UserDTO> findUserByRut(@PathVariable String userRut) {
+        Optional<UserDTO> userDTO = userService.findUserByRut(userRut);
+        if (userDTO.isPresent()) {
+            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    // buscar usuario por nombre
+    // buscar usuario por nombre REVISAR
     @GetMapping("search/name/{userName}")
-    public ResponseEntity<User> findUserByName(@PathVariable String userName) {
-        Optional<User> user = userService.findUserByName(userName);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    public ResponseEntity<UserDTO> findUserByName(@PathVariable String userName) {
+        Optional<UserDTO> userDTO = userService.findUserByName(userName);
+        if (userDTO.isPresent()) {
+            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // apartado login
-    @CrossOrigin("http://127.0.0.1:5500") // una vez se lance la app esto debe eliminarse porque corre en servidor
-    @PostMapping("login")
-    public String loginUser(@RequestParam String rut, @RequestParam String password) {
-        // Validar el login
-        if (userService.validateLogin(rut, password)) {
-            return "Login successful!";
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password) {
+        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
+        if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
+            System.out.println("SESION INICIADA CORRECTAMENTE");
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto");
         } else {
-            return "Invalid username or password";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
 
-    // apartado para eliminar usuarios
-    @DeleteMapping("/deleteUser/{adminName}")
-    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminName, @RequestParam String userName) {
+    // apartado para eliminar usuarios  REVISAR
+    @DeleteMapping("/delete/admin/{adminRut}")
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestParam String userRut) {
 
         // Validar si el usuario que está solicitando es ADMIN
-        if (!userService.isAdmin(adminName)) {
+        if (!userService.isAdminByRut(adminRut)) {
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-        }
-
-        if (!userService.isAdmin(userName)) {
-            return new ResponseEntity<>("User trying to delete is an ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("---------------");
+            System.out.println("ADMIN CORRECTO");
+            System.out.println("---------------");
         }
 
         // Intentar eliminar al usuario
-        boolean check = userService.deleteUserByName(userName);
+        boolean check = userService.deleteUserByRut(userRut);
 
         if (check) {
             return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
@@ -117,17 +142,18 @@ public class UserController {
         }
     }
 
-    // apartado para asignar roles a los usuarios
-    @PutMapping("/assignRole/{adminName}")
-    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminName, @RequestParam String userName, @RequestParam String newRole) {
+    // apartado para asignar roles a los usuarios REVISAR
+    @PutMapping("/assignRole/{adminRut}")
+    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole) {
 
-        // Verificar si el usuario que está intentando asignar es ADMIN
-        if (!userService.isAdmin(adminName)) {
-            return new ResponseEntity<>("User is not an ADMIN", HttpStatus.FORBIDDEN);
+        if (!userService.isAdminByRut(adminRut)) {
+            return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("El admin name esta correcto");
         }
 
         // Intentar asignar el nuevo rol al usuario
-        boolean isUpdated = userService.updateUserRole(userName, newRole);
+        boolean isUpdated = userService.updateUserRole(userRut, newRole);
 
         if (isUpdated) {
             return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
@@ -135,4 +161,5 @@ public class UserController {
             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
         }
     }
+
 }

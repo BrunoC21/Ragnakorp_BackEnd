@@ -24,6 +24,10 @@ public class News {
     private Integer id;
 
     @Basic
+
+    @Column(name = "news_title", nullable = false)
+    private String newsTitle;
+
     @Column(name = "news_content", columnDefinition = "TEXT", nullable = false)
     private String newsContent;
 

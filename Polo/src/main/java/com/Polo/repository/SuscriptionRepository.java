@@ -8,4 +8,6 @@ import com.Polo.model.Suscription;
 @Repository
 public interface SuscriptionRepository extends JpaRepository<Suscription, Integer> {
 
+    Suscription findBySubEmail(String subEmail);
+
 }

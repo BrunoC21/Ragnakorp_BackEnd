@@ -3,7 +3,10 @@ package com.Polo.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,25 +15,62 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.Polo.service.NewsService;
 import com.Polo.model.News;
+import com.Polo.model.NewsDTO;
+import com.Polo.model.NewsMapper;
+import com.Polo.service.NewsService;
+import com.Polo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/news")
 @RequiredArgsConstructor
+@CrossOrigin("http://127.0.0.1:5500")
 public class NewsController {
 
-    private final NewsService newsService;
+    @Autowired
+    private NewsService newsService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private NewsMapper newsMapper;
 
     // crear noticia
-    @PostMapping("/create")
-    public void createNew(@RequestBody News news) {
-        newsService.createNews(news);
+    // @PostMapping("/create")
+    // public ResponseEntity<String> createNew(@RequestBody NewsDTO newsDTO) {
+    //     News news = newsMapper.newsDTOToNews(newsDTO);
+    //     boolean chek = newsService.createNews(news, null);
+    //     if (chek) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
+    //     }
+    // }
+    // crear noticia por adminstradores
+    @PostMapping("/create/{adminRut}")
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO) {
+
+        // Validar si el usuario que está solicitando es ADMIN
+        if (!userService.isAdministrativeRut(adminRut)) {
+            return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        } else {
+            System.out.println("El admin name esta correcto");
+        }
+
+        News news = newsMapper.newsDTOToNews(newsDTO);
+
+        boolean chek = newsService.createNews(news, adminRut);
+        if (chek) {
+            return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
+        }
     }
 
-    // eliminar usuarios
+    // eliminar noticias
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteNews(@PathVariable int id) {
         boolean isDeleted = newsService.deleteNews(id);
@@ -41,24 +81,48 @@ public class NewsController {
         }
     }
 
-    // buscar todos los usuarios
+    // buscar todas las noticias
     @GetMapping("/search")
-    public List<News> findAllUsers() {
-        return newsService.findAllNews();
+    public ResponseEntity<List<NewsDTO>> findAllNews() {
+        List<NewsDTO> newsDTOList = newsService.findAllNews();
+        if (!newsDTOList.isEmpty()) {
+            return new ResponseEntity<>(newsDTOList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    // buscar usuario por id
+    // buscar noticias por id
     @GetMapping("/search/{id}")
-    public Optional<News> findUserById(@PathVariable int id) {
-        Optional<News> news = newsService.findNewsById(id);
-        if (news.isPresent()) {
-            return news;
+    public ResponseEntity<NewsDTO> findNewsById(@PathVariable int id) {
+        Optional<NewsDTO> newsDTO = newsService.findNewsById(id);
+        if (newsDTO.isPresent()) {
+            return new ResponseEntity<>(newsDTO.get(), HttpStatus.OK);
         } else {
-            return null;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     // buscar noticia por titulo
+    @GetMapping("/search/title/{newsTitle}")
+    public ResponseEntity<NewsDTO> findNewsByTitle(@PathVariable String newsTitle) {
+        Optional<NewsDTO> newsDTO = newsService.findNewsByTitle(newsTitle);
+        if (newsDTO.isPresent()) {
+            return new ResponseEntity<>(newsDTO.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     // buscar noticia por categoria   
+    @GetMapping("/search/category/{newsCategory}")
+    public ResponseEntity<NewsDTO> findNewsByCategory(@PathVariable String newsCategory) {
+        Optional<NewsDTO> newsDTO = newsService.findNewsByCategory(newsCategory);
+        if (newsDTO.isPresent()) {
+            return new ResponseEntity<>(newsDTO.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 }
