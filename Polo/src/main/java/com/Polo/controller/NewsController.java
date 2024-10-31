@@ -38,17 +38,6 @@ public class NewsController {
     @Autowired
     private NewsMapper newsMapper;
 
-    // crear noticia
-    // @PostMapping("/create")
-    // public ResponseEntity<String> createNew(@RequestBody NewsDTO newsDTO) {
-    //     News news = newsMapper.newsDTOToNews(newsDTO);
-    //     boolean chek = newsService.createNews(news, null);
-    //     if (chek) {
-    //         return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
-    //     } else {
-    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
-    //     }
-    // }
     // crear noticia por adminstradores
     @PostMapping("/create/{adminRut}")
     public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO) {
@@ -70,7 +59,7 @@ public class NewsController {
         }
     }
 
-    // eliminar noticias
+    // eliminar noticias, si bien esta creado, no se permite utilizar en un principio, ya que al hacer las noticias, estos guardan su pk en una 3era tabla que nace de la creacion de esta junto a la pk del autor, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteNews(@PathVariable int id) {
         boolean isDeleted = newsService.deleteNews(id);
@@ -116,13 +105,11 @@ public class NewsController {
 
     // buscar noticia por categoria   
     @GetMapping("/search/category/{newsCategory}")
-    public ResponseEntity<NewsDTO> findNewsByCategory(@PathVariable String newsCategory) {
-        Optional<NewsDTO> newsDTO = newsService.findNewsByCategory(newsCategory);
-        if (newsDTO.isPresent()) {
-            return new ResponseEntity<>(newsDTO.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<List<NewsDTO>> findNewsByCategory(@PathVariable String newsCategory) {
+        Optional<List<NewsDTO>> newsDTO = newsService.findNewsByCategory(newsCategory);
+        return newsDTO.map(newsList -> new ResponseEntity<>(newsList, HttpStatus.OK))
+                      .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+    
 
 }

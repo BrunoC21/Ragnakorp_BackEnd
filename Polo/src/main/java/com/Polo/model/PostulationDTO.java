@@ -7,6 +7,7 @@ import lombok.Data;
 public class PostulationDTO {
     private Integer id;
     private String postulationName;
+    private String postulationRut;
     private String postulationDescription;
     private String postulationProject;
     // private List<UserDTO> user;

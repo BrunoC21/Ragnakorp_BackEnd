@@ -2,6 +2,7 @@ package com.Polo.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
@@ -63,12 +64,15 @@ public class NewsService {
         return Optional.empty();
     }
 
-    public Optional<NewsDTO> findNewsByCategory(String newsCategory) {
-        Optional<News> optional = newsRepository.findByNewsCategory(newsCategory);
-        if (optional.isPresent()) {
-            return Optional.of(mapper.newsToNewsDTO(optional.get()));
+    public Optional<List<NewsDTO>> findNewsByCategory(String newsCategory) {
+        List<News> newsList = newsRepository.findByNewsCategory(newsCategory);
+        if (newsList != null && !newsList.isEmpty()) {
+            return Optional.of(newsList.stream()
+                                    .map(mapper::newsToNewsDTO)
+                                    .collect(Collectors.toList()));
         }
         return Optional.empty();
     }
+
 
 }
