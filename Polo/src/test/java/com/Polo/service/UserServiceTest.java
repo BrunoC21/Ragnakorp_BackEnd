@@ -2,20 +2,22 @@ package com.Polo.service;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.Polo.model.User;
 import com.Polo.model.UserMapper;
 import com.Polo.repository.UserRepository;
-import org.mapstruct.factory.Mappers;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -73,7 +75,7 @@ public class UserServiceTest {
         assertFalse(resultado); // El usuario no debe ser creado
         verify(userRepository, times(0)).save(user); // No se debe llamar a save
     }
- 
+
     // Test para validación de login correcto
     @Test
     void siPasswordEsCorrectaLoginDebeRetornarTrue() {
