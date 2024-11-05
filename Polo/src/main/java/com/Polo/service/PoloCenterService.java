@@ -31,18 +31,22 @@ public class PoloCenterService {
     }
 
     public List<Polocenter> findAllPoloCenters() {
+        System.out.println("Centro encontrado");
         return poloCenterRepository.findAll();
     }
 
     public boolean deletePoloCenter(int id) {
         if (poloCenterRepository.existsById(id)) {
             poloCenterRepository.deleteById(id);
+            System.out.println("elimnado correctamente");
             return true;
         }
+        System.out.println("No eliminado");
         return false;
     }
 
     public Optional<Polocenter> findPoloCenterByCenterName(String centerName) {
+        System.out.println("Encontrado");
         return Optional.ofNullable(poloCenterRepository.findPoloCenterByCenterName(centerName));
     }
 
