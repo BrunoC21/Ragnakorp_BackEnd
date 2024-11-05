@@ -44,14 +44,17 @@ public class UserService {
         List<User> userList = userRepository.findAll();
         List<UserDTO> userDTOList;
         userDTOList = mapper.userListToUserDTOList(userList);
+        System.out.println("Usuarios encontrados");
         return userDTOList;
     }
 
     public Optional<UserDTO> findUserById(int id) {
         Optional<User> optional = userRepository.findById(id);
         if (optional.isPresent()) {
+            System.out.println("Usuario encontrado");
             return Optional.of(mapper.userToUserDTO(optional.get()));
         }
+        System.out.println("Usuario no encontrado");
         return Optional.empty();
     }
 
@@ -59,8 +62,10 @@ public class UserService {
     public Optional<UserDTO> findUserByRut(String userRut) {
         Optional<User> optional = userRepository.findByUserRut(userRut);
         if (optional.isPresent()) {
+            System.out.println("Usuario encontrado");
             return Optional.of(mapper.userToUserDTO(optional.get()));
         }
+        System.out.println("Usuario no encontrado");
         return Optional.empty();
     }
 
@@ -68,16 +73,20 @@ public class UserService {
     public Optional<UserDTO> findUserByName(String userName) {
         Optional<User> optional = userRepository.findByUserName(userName);
         if (optional.isPresent()) {
+            System.out.println("Usuario encontrado");
             return Optional.of(mapper.userToUserDTO(optional.get()));
         }
+        System.out.println("Usuario no encontrado");
         return Optional.empty();
     }
 
     public boolean deleteUser(int id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
+            System.out.println("Usuario eliminado");
             return true;
         }
+        System.out.println("Usuario no eliminado");
         return false;
     }
 
@@ -105,6 +114,7 @@ public class UserService {
     // login user
     public boolean validateLogin(String rut, String password) {
         Optional<User> optional = userRepository.findByUserRut(rut);
+        System.out.println("Usuario validado");
         return optional != null && optional.get().getUserPassword().equals(password);
     }
 

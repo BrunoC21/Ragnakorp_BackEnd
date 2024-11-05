@@ -25,7 +25,6 @@ public class ProjectService {
 
     public boolean createProject(Project project, String userRut) {
         if (project != null) {
-            // Optional<User> optional = userRepository.findByUserRut(userRut);
             Optional<Project> existingProject = projectRepository.findByProjName(project.getProjName());
             if (existingProject.isPresent()) {
                 System.out.println("El proyecto ya existe.");
@@ -45,14 +44,17 @@ public class ProjectService {
         List<Project> projectList = projectRepository.findAll();
         List<ProjectDTO> projectDTOList;
         projectDTOList = mapper.projectListToProjectDTOList(projectList);
+        System.out.println("todos los proyectos encontrados");
         return projectDTOList;
     }
 
     public Optional<ProjectDTO> findByProjectId(int id) {
         Optional<Project> optional = projectRepository.findById(id);
         if (optional.isPresent()) {
+            System.out.println("Proyecto encontrado");
             return Optional.of(mapper.projectToProjectDTO(optional.get()));
         }
+        System.out.println("Proyecto no encontrado");
         return Optional.empty();
     }
 
@@ -60,16 +62,20 @@ public class ProjectService {
     public Optional<ProjectDTO> findByProjName(String projName) {
         Optional<Project> optional = projectRepository.findByProjName(projName);
         if (optional.isPresent()) {
+            System.out.println("Proyecto encontrado");
             return Optional.of(mapper.projectToProjectDTO(optional.get()));
         }
+        System.out.println("Proyecto no encontrado");
         return Optional.empty();
     }
 
     public boolean deleteProject(int id) {
         if (projectRepository.existsById(id)) {
             projectRepository.deleteById(id);
+            System.out.println("Proyecto eliminado");
             return true;
         }
+        System.out.println("Proyecto no eliminado");
         return false;
     }
 

@@ -36,8 +36,10 @@ public class NewsService {
     public boolean deleteNews(int id) {
         if (newsRepository.existsById(id)) {
             newsRepository.deleteById(id);
+            System.out.println("Eliminado");
             return true;
         }
+        System.out.println("No eliminado");
         return false;
     }
 
@@ -45,32 +47,39 @@ public class NewsService {
         List<News> newsList = newsRepository.findAll();
         List<NewsDTO> newsDTOList;
         newsDTOList = mapper.newsListToNewsDTOList(newsList);
+        System.out.println("Encontrados");
         return newsDTOList;
     }
 
     public Optional<NewsDTO> findNewsById(int id) {
         Optional<News> optional = newsRepository.findById(id);
         if (optional.isPresent()) {
+            System.out.println("Encontrado");
             return Optional.of(mapper.newsToNewsDTO(optional.get()));
         }
+        System.out.println("No encontrado");
         return Optional.empty();
     }
 
     public Optional<NewsDTO> findNewsByTitle(String newsTitle) {
         Optional<News> optional = newsRepository.findByNewsTitle(newsTitle);
         if (optional.isPresent()) {
+            System.out.println("Encontrado");
             return Optional.of(mapper.newsToNewsDTO(optional.get()));
         }
+        System.out.println("No encontrado");
         return Optional.empty();
     }
 
     public Optional<List<NewsDTO>> findNewsByCategory(String newsCategory) {
         List<News> newsList = newsRepository.findByNewsCategory(newsCategory);
         if (newsList != null && !newsList.isEmpty()) {
+            System.out.println("Encontrado");
             return Optional.of(newsList.stream()
                                     .map(mapper::newsToNewsDTO)
                                     .collect(Collectors.toList()));
         }
+        System.out.println("No encontrado");
         return Optional.empty();
     }
 
