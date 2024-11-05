@@ -35,14 +35,17 @@ public class SuscriptionService {
     }
 
     public List<Suscription> findAllSuscriptions() {
+        System.out.println("Lista encontrada");
         return suscriptionRepository.findAll();
     }
 
     public Optional<Suscription> findSuscriptionsByEmail(String subEmail) {
+        System.out.println("Suscriptores encontrados");
         return Optional.ofNullable(suscriptionRepository.findBySubEmail(subEmail));
     }
 
     public boolean deleteSuscriptorByMail(String subEmail) {
+        System.out.println("Suscriptor eliminado");
         Suscription sub = suscriptionRepository.findBySubEmail(subEmail);
         
         if (sub != null) {
