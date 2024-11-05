@@ -13,6 +13,8 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,80 +42,68 @@ public class NewsServiceTest {
     @InjectMocks
     private NewsService newsService;
 
-    // Test para crear una noticia
     @Test
     void siNoticiaEsValidaDebeCrearNoticia() {
-        // Arrange
         News news = new News();
         news.setNewsTitle("Noticia de ejemplo");
         news.setNewsContent("Contenido de la noticia");
 
         when(newsRepository.save(news)).thenReturn(news);
-        // // Simulamos el comportamiento de saveDetails para evitar el NullPointerException
-        // when(newsUserDetailsService.saveDetails(news, "11111111-1")).thenReturn(true);
+        doNothing().when(newsUserDetailsService).saveDetails(news, "11111111-1");
 
-        // Act
-        boolean resultado = newsService.createNews(news, "12345678-9");
+        boolean resultado = newsService.createNews(news, "11111111-1");
 
-        // Assert
-        assertTrue(resultado); // La noticia debe ser creada
-        verify(newsRepository, times(1)).save(news); // Verifica que se llame a save
-        verify(newsUserDetailsService, times(1)).saveDetails(news, "12345678-9"); // Verifica que se llame a saveDetails
+        assertTrue(resultado);
+        verify(newsRepository, times(1)).save(news);
+        verify(newsUserDetailsService, times(1)).saveDetails(news, "11111111-1");
+
+        System.out.println("Test siNoticiaEsValidaDebeCrearNoticia pasó exitosamente.");
     }
 
-    // Test para borrar una noticia existente
     @Test
     void siNoticiaExisteDebeBorrarNoticia() {
-        // Arrange
         int newsId = 1;
         when(newsRepository.existsById(newsId)).thenReturn(true);
 
-        // Act
         boolean resultado = newsService.deleteNews(newsId);
 
-        // Assert
-        assertTrue(resultado); // La noticia debe ser borrada
-        verify(newsRepository, times(1)).deleteById(newsId); // Verifica que se llame a deleteById
+        assertTrue(resultado);
+        verify(newsRepository, times(1)).deleteById(newsId);
+
+        System.out.println("Test siNoticiaExisteDebeBorrarNoticia pasó exitosamente.");
     }
 
-    // Test para borrar una noticia inexistente
     @Test
     void siNoticiaNoExisteNoDebeBorrarNoticia() {
-        // Arrange
         int newsId = 1;
         when(newsRepository.existsById(newsId)).thenReturn(false);
 
-        // Act
         boolean resultado = newsService.deleteNews(newsId);
 
-        // Assert
-        assertFalse(resultado); // La noticia no debe ser borrada
-        verify(newsRepository, times(0)).deleteById(newsId); // No se debe llamar a deleteById
+        assertFalse(resultado);
+        verify(newsRepository, times(0)).deleteById(newsId);
+
+        System.out.println("Test siNoticiaNoExisteNoDebeBorrarNoticia pasó exitosamente.");
     }
 
-    // Test para buscar todas las noticias
     @Test
     void debeRetornarListaDeNoticias() {
-        // Arrange
         List<News> newsList = new ArrayList<>();
         newsList.add(new News());
-        lenient().when(newsRepository.findAll()).thenReturn(newsList); // Hacemos el stubbing de manera "lenient"
+        lenient().when(newsRepository.findAll()).thenReturn(newsList);
 
         List<NewsDTO> newsDTOList = new ArrayList<>();
         newsDTOList.add(new NewsDTO());
-        lenient().when(newsMapper.newsListToNewsDTOList(newsList)).thenReturn(newsDTOList); // Hacemos el stubbing de manera "lenient"
+        lenient().when(newsMapper.newsListToNewsDTOList(newsList)).thenReturn(newsDTOList);
 
-        // Act
         List<NewsDTO> resultado = newsService.findAllNews();
 
-        // Assert
-        assertEquals(newsDTOList, resultado); // Verifica que se retorne la lista de noticias
+        assertEquals(newsDTOList, resultado);
+        System.out.println("Test debeRetornarListaDeNoticias pasó exitosamente.");
     }
 
-    // Test para buscar noticia por ID
     @Test
     void siNoticiaExisteDebeRetornarNoticiaPorId() {
-        // Arrange
         News news = new News();
         news.setId(1);
         news.setNewsTitle("Noticia de ejemplo");
@@ -128,18 +118,16 @@ public class NewsServiceTest {
 
         Mockito.lenient().when(newsMapper.newsToNewsDTO(news)).thenReturn(newsDTO);
 
-        // Act
         Optional<NewsDTO> resultado = newsService.findNewsById(1);
 
-        // Assert
-        assertTrue(resultado.isPresent()); // La noticia debe existir
-        assertEquals(newsDTO, resultado.get()); // El resultado debe coincidir con el DTO esperado
+        assertTrue(resultado.isPresent());
+        assertEquals(newsDTO, resultado.get());
+
+        System.out.println("Test siNoticiaExisteDebeRetornarNoticiaPorId pasó exitosamente.");
     }
 
-    // Test para buscar noticia por título
     @Test
     void siNoticiaExisteDebeRetornarNoticiaPorTitulo() {
-        // Arrange
         News news = new News();
         news.setNewsTitle("Noticia de ejemplo");
         news.setNewsContent("Contenido de la noticia");
@@ -152,18 +140,16 @@ public class NewsServiceTest {
 
         Mockito.lenient().when(newsMapper.newsToNewsDTO(news)).thenReturn(newsDTO);
 
-        // Act
         Optional<NewsDTO> resultado = newsService.findNewsByTitle("Noticia de ejemplo");
 
-        // Assert
-        assertTrue(resultado.isPresent()); // La noticia debe existir
-        assertEquals(newsDTO, resultado.get()); // El resultado debe coincidir con el DTO esperado
+        assertTrue(resultado.isPresent());
+        assertEquals(newsDTO, resultado.get());
+
+        System.out.println("Test siNoticiaExisteDebeRetornarNoticiaPorTitulo pasó exitosamente.");
     }
 
-    // Test para buscar noticias por categoría
     @Test
     void siNoticiasExistenDebeRetornarListaPorCategoria() {
-        // Arrange
         String categoria = "Tecnología";
         List<News> newsList = new ArrayList<>();
         newsList.add(new News());
@@ -173,12 +159,11 @@ public class NewsServiceTest {
         newsDTOList.add(new NewsDTO());
         Mockito.lenient().when(newsMapper.newsListToNewsDTOList(newsList)).thenReturn(newsDTOList);
 
-        // Act
         Optional<List<NewsDTO>> resultado = newsService.findNewsByCategory(categoria);
 
-        // Assert
-        assertTrue(resultado.isPresent()); // La lista de noticias debe existir
-        assertEquals(newsDTOList, resultado.get()); // El resultado debe coincidir con la lista de DTOs esperada
-    }
+        assertTrue(resultado.isPresent());
+        assertEquals(newsDTOList, resultado.get());
 
+        System.out.println("Test siNoticiasExistenDebeRetornarListaPorCategoria pasó exitosamente.");
+    }
 }
