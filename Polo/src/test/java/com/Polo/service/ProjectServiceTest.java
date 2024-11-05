@@ -1,30 +1,25 @@
 package com.Polo.service;
 
+import com.Polo.Details.ProjectUserDetailsService;
+import com.Polo.model.*;
+import com.Polo.repository.ProjectRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mapstruct.factory.Mappers;
-
-import com.Polo.model.Project;
-import com.Polo.model.ProjectDTO;
-import com.Polo.model.ProjectMapper;
-import com.Polo.repository.ProjectRepository;
-import com.Polo.Details.ProjectUserDetailsService;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceTest {
-
-    @InjectMocks
-    private ProjectService projectService;
 
     @Mock
     private ProjectRepository projectRepository;
@@ -32,128 +27,134 @@ public class ProjectServiceTest {
     @Mock
     private ProjectUserDetailsService projectUserDetailsService;
 
-    @Mock
     private ProjectMapper projectMapper = Mappers.getMapper(ProjectMapper.class);
 
-    @Test
-    void siProjectNoExisteDebeCrearProject() {
-        Project project = new Project();
-        project.setProjName("Proyecto Innovador");
-        String userRut = "12345678-9";
-        project.setProjDescription("Projecto Saludable salud");
-        project.setProjLong("19° 25 42 N");
-        project.setProjLat("99° 7 39 O");
-        project.setProjStartDate("30 de noviembre de 2024");
-        project.setProjBudget("4000000000");
-        project.setProjCategory("Externo");
-        
-        when(projectRepository.findByProjName("Proyecto Innovador")).thenReturn(Optional.empty());
+    @InjectMocks
+    private ProjectService projectService;
 
-        boolean resultado = projectService.createProject(project, userRut);
+    private Project project;
+    private ProjectDTO projectDTO;
 
-        assertTrue(resultado);
-        verify(projectRepository, times(1)).save(project);
-        verify(projectUserDetailsService, times(1)).saveDetails(project, userRut);
-    }
-
-    @Test
-    void siProjectYaExisteNoDebeCrearProject() {
-        Project project = new Project();
-        project.setProjName("Proyecto Existente");
-        String userRut = "12345678-9";
-        project.setProjDescription("Projecto Saludable salud");
-        project.setProjLong("19° 25 42 N");
-        project.setProjLat("99° 7 39 O");
-        project.setProjStartDate("30 de noviembre de 2024");
-        project.setProjBudget("4000000000");
-        project.setProjCategory("Externo");
-
-        when(projectRepository.findByProjName("Proyecto Existente")).thenReturn(Optional.of(project));
-
-        boolean resultado = projectService.createProject(project, userRut);
-
-        assertFalse(resultado);
-        verify(projectRepository, times(0)).save(project);
-    }
-
-    @Test
-    void debeRetornarListaDeProjects() {
-        List<Project> projectList = List.of(new Project(), new Project());
-        List<ProjectDTO> projectDTOList = List.of(new ProjectDTO(), new ProjectDTO());
-
-        when(projectRepository.findAll()).thenReturn(projectList);
-        when(projectMapper.projectListToProjectDTOList(projectList)).thenReturn(projectDTOList);
-
-        List<ProjectDTO> resultado = projectService.findAllProjects();
-
-        assertEquals(2, resultado.size());
-        verify(projectRepository, times(1)).findAll();
-    }
-
-    @Test
-    void debeRetornarProjectPorId() {
-        Project project = new Project();
+    @BeforeEach
+    void setUp() {
+        project = new Project();
         project.setId(1);
-        ProjectDTO projectDTO = new ProjectDTO();
+        project.setProjName("Project Name");
+        project.setProjDescription("Description");
+        project.setProjLong("Long");
+        project.setProjStartDate("2024-01-01");
+        project.setProjRequirementsPostulation("Requirements");
+        project.setProjLat("Lat");
+        project.setProjBudget("Budget");
+        project.setProjCategory("Category");
 
+        projectDTO = projectMapper.projectToProjectDTO(project);
+    }
+
+    @Test
+    void whenCreateProject_thenReturnTrue() {
+        // Arrange
+        when(projectRepository.findByProjName(project.getProjName())).thenReturn(Optional.empty());
+        when(projectRepository.save(any(Project.class))).thenReturn(project);
+
+        // Act
+        boolean result = projectService.createProject(project, "userRut");
+
+        // Assert
+        assertTrue(result);
+        verify(projectRepository, times(1)).save(project);
+        verify(projectUserDetailsService, times(1)).saveDetails(project, "userRut");
+    }
+
+    @Test
+    void whenCreateProjectAndProjectExists_thenReturnFalse() {
+        // Arrange
+        when(projectRepository.findByProjName(project.getProjName())).thenReturn(Optional.of(project));
+
+        // Act
+        boolean result = projectService.createProject(project, "userRut");
+
+        // Assert
+        assertFalse(result);
+        verify(projectRepository, never()).save(project);
+    }
+
+    @Test
+    void whenFindAllProjects_thenReturnProjectDTOList() {
+        // Arrange
+        List<Project> projects = List.of(project);
+        when(projectRepository.findAll()).thenReturn(projects);
+
+        // Act
+        List<ProjectDTO> result = projectService.findAllProjects();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(project.getProjName(), result.get(0).getProjName());
+    }
+
+    @Test
+    void whenFindByProjectId_thenReturnProjectDTO() {
+        // Arrange
         when(projectRepository.findById(1)).thenReturn(Optional.of(project));
-        when(projectMapper.projectToProjectDTO(project)).thenReturn(projectDTO);
 
-        Optional<ProjectDTO> resultado = projectService.findByProjectId(1);
+        // Act
+        Optional<ProjectDTO> result = projectService.findByProjectId(1);
 
-        assertTrue(resultado.isPresent());
-        assertEquals(projectDTO, resultado.get());
-        verify(projectRepository, times(1)).findById(1);
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(project.getProjName(), result.get().getProjName());
     }
 
     @Test
-    void siProjectNoExisteDebeRetornarEmptyAlBuscarPorId() {
-        when(projectRepository.findById(99)).thenReturn(Optional.empty());
+    void whenFindByProjectIdAndProjectNotFound_thenReturnEmpty() {
+        // Arrange
+        when(projectRepository.findById(1)).thenReturn(Optional.empty());
 
-        Optional<ProjectDTO> resultado = projectService.findByProjectId(99);
+        // Act
+        Optional<ProjectDTO> result = projectService.findByProjectId(1);
 
-        assertFalse(resultado.isPresent());
-        verify(projectRepository, times(1)).findById(99);
+        // Assert
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void debeRetornarProjectPorNombre() {
-        Project project = new Project();
-        project.setProjName("Proyecto Salud");
-        ProjectDTO projectDTO = new ProjectDTO();
+    void whenFindByProjName_thenReturnProjectDTO() {
+        // Arrange
+        when(projectRepository.findByProjName("Project Name")).thenReturn(Optional.of(project));
 
-        when(projectRepository.findByProjName("Proyecto Salud")).thenReturn(Optional.of(project));
-        when(projectMapper.projectToProjectDTO(project)).thenReturn(projectDTO);
+        // Act
+        Optional<ProjectDTO> result = projectService.findByProjName("Project Name");
 
-        Optional<ProjectDTO> resultado = projectService.findByProjName("Proyecto Salud");
-
-        assertTrue(resultado.isPresent());
-        assertEquals(projectDTO, resultado.get());
-        verify(projectRepository, times(1)).findByProjName("Proyecto Salud");
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(project.getProjName(), result.get().getProjName());
     }
 
     @Test
-    void siProjectExisteDebeEliminarProject() {
-        int projectId = 1;
+    void whenDeleteProject_thenReturnTrue() {
+        // Arrange
+        when(projectRepository.existsById(1)).thenReturn(true);
 
-        when(projectRepository.existsById(projectId)).thenReturn(true);
+        // Act
+        boolean result = projectService.deleteProject(1);
 
-        boolean resultado = projectService.deleteProject(projectId);
-
-        assertTrue(resultado);
-        verify(projectRepository, times(1)).deleteById(projectId);
+        // Assert
+        assertTrue(result);
+        verify(projectRepository, times(1)).deleteById(1);
     }
 
     @Test
-    void siProjectNoExisteNoDebeEliminarProject() {
-        int projectId = 99;
+    void whenDeleteProjectAndProjectNotExists_thenReturnFalse() {
+        // Arrange
+        when(projectRepository.existsById(1)).thenReturn(false);
 
-        when(projectRepository.existsById(projectId)).thenReturn(false);
+        // Act
+        boolean result = projectService.deleteProject(1);
 
-        boolean resultado = projectService.deleteProject(projectId);
-
-        assertFalse(resultado);
-        verify(projectRepository, times(0)).deleteById(projectId);
+        // Assert
+        assertFalse(result);
+        verify(projectRepository, never()).deleteById(1);
     }
 }
-
