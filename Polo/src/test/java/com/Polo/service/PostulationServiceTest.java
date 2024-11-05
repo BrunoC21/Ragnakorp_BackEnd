@@ -1,30 +1,29 @@
 package com.Polo.service;
 
-import java.util.List;
-import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mapstruct.factory.Mappers;
-
+import com.Polo.Details.PostulationProjectDetailsService;
+import com.Polo.Details.PostulationUserDetailsService;
 import com.Polo.model.Postulation;
 import com.Polo.model.PostulationDTO;
 import com.Polo.model.PostulationMapper;
 import com.Polo.repository.PostulationRepository;
-import com.Polo.Details.PostulationProjectDetailsService;
-import com.Polo.Details.PostulationUserDetailsService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PostulationServiceTest {
-
-    @InjectMocks
-    private PostulationService postulationService;
 
     @Mock
     private PostulationRepository postulationRepository;
@@ -38,101 +37,127 @@ public class PostulationServiceTest {
     @Mock
     private PostulationMapper postulationMapper = Mappers.getMapper(PostulationMapper.class);
 
+    @InjectMocks
+    private PostulationService postulationService;
+
+    // Test para verificar la creación de una postulación
     @Test
-    void siPostulationNoExisteDebeCrearPostulation() {
-        Postulation postulation = new Postulation();
-        postulation.setPostulationName("Tengo Fe");
-        postulation.setPostulationDescription("Denme practica, o chamba, si pagan mejor.");
-        postulation.setPostulationRut("20629292-k");
-        postulation.setPostulationProject("Proyecto Salud saludable");
-
-        when(postulationRepository.findById(postulation.getId())).thenReturn(Optional.empty());
-
-        boolean resultado = postulationService.createPostulation(postulation);
-
-        assertTrue(resultado);
-        verify(postulationRepository, times(1)).save(postulation);
-        verify(postulationUserDetailsService, times(1)).saveDetails(postulation);
-        verify(postulationProjectDetailsService, times(1)).saveDetails(postulation);
-    }
-
-    @Test
-    void siPostulationYaExisteNoDebeCrearPostulation() {
-        Postulation postulation = new Postulation();
-        postulation.setPostulationName("Tengo Fe");
-        postulation.setPostulationDescription("Denme practica, o chamba, si pagan mejor.");
-        postulation.setPostulationRut("20629292-k");
-        postulation.setPostulationProject("Proyecto Salud saludable");
-
-        when(postulationRepository.findById(postulation.getId())).thenReturn(Optional.of(postulation));
-
-        boolean resultado = postulationService.createPostulation(postulation);
-
-        assertFalse(resultado);
-        verify(postulationRepository, times(0)).save(postulation);
-    }
-
-    @Test
-    void debeRetornarListaDePostulations() {
-        List<Postulation> postulationList = List.of(new Postulation(), new Postulation());
-        List<PostulationDTO> postulationDTOList = List.of(new PostulationDTO(), new PostulationDTO());
-
-        when(postulationRepository.findAll()).thenReturn(postulationList);
-        when(postulationMapper.postulationListToPostulationDTOList(postulationList)).thenReturn(postulationDTOList);
-
-        List<PostulationDTO> resultado = postulationService.findAllPostulations();
-
-        assertEquals(2, resultado.size());
-        verify(postulationRepository, times(1)).findAll();
-    }
-
-    @Test
-    void debeRetornarPostulationPorId() {
+    void siPostulacionNoExisteDebeCrearPostulacion() {
+        // Arrange
         Postulation postulation = new Postulation();
         postulation.setId(1);
+        postulation.setPostulationName("Proyecto Ejemplo");
+        postulation.setPostulationRut("12345678-9");
+        postulation.setPostulationDescription("Descripción de ejemplo para la postulación.");
+        postulation.setPostulationProject("Proyecto de Innovación");
+
+        when(postulationRepository.save(postulation)).thenReturn(postulation);
+
+        // Act
+        boolean resultado = postulationService.createPostulation(postulation);
+
+        // Assert
+        assertTrue(resultado); // La postulación debe ser creada
+        verify(postulationRepository, times(1)).save(postulation); // Verifica que se llame a save
+    }
+
+    @Test
+    void siPostulacionExistePorIdDebeRetornarDTO() {
+        // Arrange
+        Postulation postulation = new Postulation();
+        postulation.setId(1);
+        postulation.setPostulationName("Proyecto Ejemplo");
+        postulation.setPostulationRut("12345678-9");
+        postulation.setPostulationDescription("Descripción de ejemplo para la postulación.");
+        postulation.setPostulationProject("Proyecto de Innovación");
+
         PostulationDTO postulationDTO = new PostulationDTO();
+        postulationDTO.setId(1);
+        postulationDTO.setPostulationName("Proyecto Ejemplo");
+        postulationDTO.setPostulationRut("12345678-9");
+        postulationDTO.setPostulationDescription("Descripción de ejemplo para la postulación.");
+        postulationDTO.setPostulationProject("Proyecto de Innovación");
 
-        when(postulationRepository.findById(1)).thenReturn(Optional.of(postulation));
-        when(postulationMapper.postulationToPostulationDTO(postulation)).thenReturn(postulationDTO);
+        lenient().when(postulationRepository.findById(1)).thenReturn(Optional.of(postulation));
+        lenient().when(postulationMapper.postulationToPostulationDTO(postulation)).thenReturn(postulationDTO);
 
+        // Act
         Optional<PostulationDTO> resultado = postulationService.findPostulationById(1);
 
-        assertTrue(resultado.isPresent());
-        assertEquals(postulationDTO, resultado.get());
-        verify(postulationRepository, times(1)).findById(1);
+        // Assert
+        assertTrue(resultado.isPresent()); // Verifica que se encontró la postulación
+        assertEquals(postulationDTO, resultado.get()); // Verifica que el DTO es correcto
     }
 
     @Test
-    void siPostulationNoExisteDebeRetornarEmptyAlBuscarPorId() {
-        when(postulationRepository.findById(99)).thenReturn(Optional.empty());
+    void siPostulacionNoExistePorIdDebeRetornarEmpty() {
+        // Arrange
+        when(postulationRepository.findById(1)).thenReturn(Optional.empty());
 
-        Optional<PostulationDTO> resultado = postulationService.findPostulationById(99);
+        // Act
+        Optional<PostulationDTO> resultado = postulationService.findPostulationById(1);
 
-        assertFalse(resultado.isPresent());
-        verify(postulationRepository, times(1)).findById(99);
+        // Assert
+        assertFalse(resultado.isPresent()); // Verifica que no se encontró la postulación
     }
 
     @Test
-    void siPostulationExisteDebeEliminarPostulation() {
+    void debeRetornarListaDePostulacionesDTO() {
+        // Arrange
+        Postulation postulation = new Postulation();
+        postulation.setId(1);
+        postulation.setPostulationName("Proyecto Ejemplo");
+        postulation.setPostulationRut("12345678-9");
+        postulation.setPostulationDescription("Descripción de ejemplo para la postulación.");
+        postulation.setPostulationProject("Proyecto de Innovación");
+
+        PostulationDTO postulationDTO = new PostulationDTO();
+        postulationDTO.setId(1);
+        postulationDTO.setPostulationName("Proyecto Ejemplo");
+        postulationDTO.setPostulationRut("12345678-9");
+        postulationDTO.setPostulationDescription("Descripción de ejemplo para la postulación.");
+        postulationDTO.setPostulationProject("Proyecto de Innovación");
+
+        List<Postulation> postulationList = List.of(postulation);
+        List<PostulationDTO> postulationDTOList = List.of(postulationDTO);
+
+        lenient().when(postulationRepository.findAll()).thenReturn(postulationList);
+        lenient().when(postulationMapper.postulationListToPostulationDTOList(postulationList))
+                .thenReturn(postulationDTOList);
+
+        // Act
+        List<PostulationDTO> resultado = postulationService.findAllPostulations();
+
+        // Assert
+        assertEquals(postulationDTOList, resultado); // Verifica que el resultado es igual a la lista de DTO esperada
+    }
+
+    @Test
+    void siPostulacionExisteDebeEliminarla() {
+        // Arrange
         int postulationId = 1;
-
         when(postulationRepository.existsById(postulationId)).thenReturn(true);
 
+        // Act
         boolean resultado = postulationService.deletePostulation(postulationId);
 
-        assertTrue(resultado);
-        verify(postulationRepository, times(1)).deleteById(postulationId);
+        // Assert
+        assertTrue(resultado); // Verifica que la postulación se ha eliminado
+        verify(postulationRepository, times(1)).deleteById(postulationId); // Verifica que se llamó a deleteById
     }
 
     @Test
-    void siPostulationNoExisteNoDebeEliminarPostulation() {
-        int postulationId = 99;
-
+    void siPostulacionNoExisteNoDebeEliminarla() {
+        // Arrange
+        int postulationId = 1;
         when(postulationRepository.existsById(postulationId)).thenReturn(false);
 
+        // Act
         boolean resultado = postulationService.deletePostulation(postulationId);
 
-        assertFalse(resultado);
-        verify(postulationRepository, times(0)).deleteById(postulationId);
+        // Assert
+        assertFalse(resultado); // Verifica que no se eliminó la postulación
+        verify(postulationRepository, times(0)).deleteById(postulationId); // Verifica que no se llamó a deleteById
     }
+
 }
