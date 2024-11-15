@@ -2,6 +2,7 @@ package com.Polo.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
@@ -35,8 +36,10 @@ public class NewsService {
     public boolean deleteNews(int id) {
         if (newsRepository.existsById(id)) {
             newsRepository.deleteById(id);
+            System.out.println("Eliminado");
             return true;
         }
+        System.out.println("No eliminado");
         return false;
     }
 
@@ -44,31 +47,41 @@ public class NewsService {
         List<News> newsList = newsRepository.findAll();
         List<NewsDTO> newsDTOList;
         newsDTOList = mapper.newsListToNewsDTOList(newsList);
+        System.out.println("Encontrados");
         return newsDTOList;
     }
 
     public Optional<NewsDTO> findNewsById(int id) {
         Optional<News> optional = newsRepository.findById(id);
         if (optional.isPresent()) {
+            System.out.println("Encontrado");
             return Optional.of(mapper.newsToNewsDTO(optional.get()));
         }
+        System.out.println("No encontrado");
         return Optional.empty();
     }
 
     public Optional<NewsDTO> findNewsByTitle(String newsTitle) {
         Optional<News> optional = newsRepository.findByNewsTitle(newsTitle);
         if (optional.isPresent()) {
+            System.out.println("Encontrado");
             return Optional.of(mapper.newsToNewsDTO(optional.get()));
         }
+        System.out.println("No encontrado");
         return Optional.empty();
     }
 
-    public Optional<NewsDTO> findNewsByCategory(String newsCategory) {
-        Optional<News> optional = newsRepository.findByNewsCategory(newsCategory);
-        if (optional.isPresent()) {
-            return Optional.of(mapper.newsToNewsDTO(optional.get()));
+    public Optional<List<NewsDTO>> findNewsByCategory(String newsCategory) {
+        List<News> newsList = newsRepository.findByNewsCategory(newsCategory);
+        if (newsList != null && !newsList.isEmpty()) {
+            System.out.println("Encontrado");
+            return Optional.of(newsList.stream()
+                                    .map(mapper::newsToNewsDTO)
+                                    .collect(Collectors.toList()));
         }
+        System.out.println("No encontrado");
         return Optional.empty();
     }
+
 
 }

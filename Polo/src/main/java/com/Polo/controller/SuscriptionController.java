@@ -35,7 +35,7 @@ public class SuscriptionController {
         if (chek) {
             return ResponseEntity.ok("Suscriptor creado exitosamente");
         } else {
-            return ResponseEntity.status(404).body("Suscriptor no creado");
+            return ResponseEntity.status(404).body("Ya se encuentra suscrito");
         }
     }
 

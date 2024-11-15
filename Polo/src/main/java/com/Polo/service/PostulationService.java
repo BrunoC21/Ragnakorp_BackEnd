@@ -40,22 +40,27 @@ public class PostulationService {
         List<Postulation> postulationList = postulationRepository.findAll();
         List<PostulationDTO> postulationDTOList;
         postulationDTOList = mapper.postulationListToPostulationDTOList(postulationList);
+        System.out.println("Postulaciones encontradas: ");
         return postulationDTOList;
     }
 
     public Optional<PostulationDTO> findPostulationById(int id) {
         Optional<Postulation> optional = postulationRepository.findById(id);
         if (optional.isPresent()) {
+            System.out.println("Postulacion encontrada: ");
             return Optional.of(mapper.postulationToPostulationDTO(optional.get()));
         }
+        System.out.println("Postulacion no encontrada");
         return Optional.empty();
     }
 
     public boolean deletePostulation(int id) {
         if (postulationRepository.existsById(id)) {
             postulationRepository.deleteById(id);
+            System.out.println("Postulacion eliminada exitosamente");
             return true;
         }
+        System.out.println("Error al eliminar la postulacion");
         return false;
     }
 }
