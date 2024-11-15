@@ -1,6 +1,5 @@
 package com.Polo.model;
 
-import java.util.List;
 import lombok.Data;
 
 @Data
@@ -10,6 +9,4 @@ public class PostulationDTO {
     private String postulationRut;
     private String postulationDescription;
     private String postulationProject;
-    // private List<UserDTO> user;
-    // private List<ProjectDTO> project;
 }
