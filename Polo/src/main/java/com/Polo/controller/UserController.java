@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,9 @@ import com.Polo.model.User;
 import com.Polo.model.UserDTO;
 import com.Polo.model.UserMapper;
 import com.Polo.service.UserService;
+import com.Polo.userDataSession.SessionUtils;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -108,39 +111,17 @@ public class UserController {
     }
 
     // apartado login
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password) {
-        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
-        if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
-            System.out.println("SESION INICIADA CORRECTAMENTE");
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
-        }
+    @PostMapping("/login") 
+    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) { 
+        Optional<UserDTO> userDTO = userService.findUserByRut(rut); 
+        if (userDTO.isPresent() && userService.validateLogin(rut, password)) { 
+            SessionUtils.setUserSession(userDTO.get(), rut, session); // Uso del método de utilidades 
+
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto"); 
+        } else { 
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password"); 
+        } 
     }
-
-    // apartado para eliminar usuarios  REVISAR
-    // @DeleteMapping("/delete/admin/{adminRut}")
-    // public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestParam String userRut) {
-
-    //     // Validar si el usuario que está solicitando es ADMIN
-    //     if (!userService.isAdminByRut(adminRut)) {
-    //         return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-    //     } else {
-    //         System.out.println("---------------");
-    //         System.out.println("ADMIN CORRECTO");
-    //         System.out.println("---------------");
-    //     }
-
-    //     // Intentar eliminar al usuario
-    //     boolean check = userService.deleteUserByRut(userRut);
-
-    //     if (check) {
-    //         return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
-    //     } else {
-    //         return new ResponseEntity<>("User cannot be deleted", HttpStatus.NOT_FOUND);
-    //     }
-    // }
 
     // apartado para asignar roles a los usuarios
     @PutMapping("/assignRole/{adminRut}")
@@ -160,6 +141,20 @@ public class UserController {
         } else {
             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/sessionInfo")
+    public ResponseEntity<Object> getSessionInfo(HttpSession session) {
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+
+        if (sessionData.get("userRut") == null) {
+            System.out.println("No hay sesion iniciada");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay sesion iniciada");
+        }
+
+        System.out.println("Informacion de session recuperada: ");
+        sessionData.forEach((key, value) -> System.out.println(key + ": " + value));
+        return ResponseEntity.ok(sessionData);
     }
 
 }
