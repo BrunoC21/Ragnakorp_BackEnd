@@ -36,5 +36,22 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
                 .allowCredentials(true);
+        
+        registry.addMapping("/proyecto/user/login")
+                .allowedOrigins("http://localhost:5500", "http://localhost:8080")
+                .allowedMethods("POST", "GET", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
+                .allowCredentials(true);
+                
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5500")  // Dirección de tu frontend
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowCredentials(true)  // Permitir el envío de cookies
+                .allowedHeaders("*");
+
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5500") // Asegúrate de colocar la URL correcta de tu frontend
+                .allowCredentials(true);
     }
 }
