@@ -72,7 +72,7 @@ public class UserController {
         List<UserDTO> userDTOList = userService.findAllUsers();
         if (!userDTOList.isEmpty()) {
             return new ResponseEntity<>(userDTOList, HttpStatus.OK);
-        } else { 
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -82,7 +82,7 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserById(@PathVariable int id) {
         Optional<UserDTO> userDTO = userService.findUserById(id);
         if (userDTO.isPresent()) {
-            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(userDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -93,7 +93,7 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserByRut(@PathVariable String userRut) {
         Optional<UserDTO> userDTO = userService.findUserByRut(userRut);
         if (userDTO.isPresent()) {
-            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(userDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -104,43 +104,50 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserByName(@PathVariable String userName) {
         Optional<UserDTO> userDTO = userService.findUserByName(userName);
         if (userDTO.isPresent()) {
-            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(userDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     // apartado login
-    @PostMapping("/login") 
-    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) { 
-        Optional<UserDTO> userDTO = userService.findUserByRut(rut); 
-        if (userDTO.isPresent() && userService.validateLogin(rut, password)) { 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
+        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
+        if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
+            System.out.println(userDTO);
             SessionUtils.setUserSession(userDTO.get(), rut, session); // Uso del método de utilidades 
 
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto"); 
-        } else { 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password"); 
-        } 
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto" + userDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
     }
 
     // apartado para asignar roles a los usuarios
     @PutMapping("/assignRole/{adminRut}")
-    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole) {
+    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
 
-        if (!userService.isAdminByRut(adminRut)) {
+        // if (!userService.isAdminByRut(adminRut)) {
+        //     return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        // } else {
+        //     System.out.println("El admin name esta correcto");
+        // }
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+
+        if (sessionData.get("role") == "ADMIN") {
+            // Intentar asignar el nuevo rol al usuario
+            boolean isUpdated = userService.updateUserRole(userRut, newRole);
+
+            if (isUpdated) {
+                return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
+            }
+        } else {
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-        } else {
-            System.out.println("El admin name esta correcto");
         }
 
-        // Intentar asignar el nuevo rol al usuario
-        boolean isUpdated = userService.updateUserRole(userRut, newRole);
-
-        if (isUpdated) {
-            return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
-        }
     }
 
     @GetMapping("/sessionInfo")

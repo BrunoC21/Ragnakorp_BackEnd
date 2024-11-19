@@ -108,8 +108,7 @@ public class NewsController {
     public ResponseEntity<List<NewsDTO>> findNewsByCategory(@PathVariable String newsCategory) {
         Optional<List<NewsDTO>> newsDTO = newsService.findNewsByCategory(newsCategory);
         return newsDTO.map(newsList -> new ResponseEntity<>(newsList, HttpStatus.OK))
-                      .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
 
 }
