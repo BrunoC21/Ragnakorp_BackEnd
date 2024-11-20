@@ -113,11 +113,10 @@ public class UserController {
     // apartado login
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
+        System.out.println(rut);
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
         if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
-            System.out.println(userDTO);
             SessionUtils.setUserSession(userDTO.get(), rut, session); // Uso del método de utilidades 
-
             return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto" + userDTO);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
@@ -127,15 +126,17 @@ public class UserController {
     // apartado para asignar roles a los usuarios
     @PutMapping("/assignRole/{adminRut}")
     public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
-
-        // if (!userService.isAdminByRut(adminRut)) {
-        //     return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-        // } else {
-        //     System.out.println("El admin name esta correcto");
-        // }
         Map<String, Object> sessionData = SessionUtils.getUserSession(session);
 
-        if (sessionData.get("role") == "ADMIN") {
+        System.out.println(sessionData.get("userRut"));
+        System.out.println(sessionData.get("username"));
+        System.out.println(sessionData.get("role"));
+
+        String role = sessionData.get("role").toString();
+        System.out.println(role);
+
+        if ("ADMIN".equals(role)) {
+            System.out.println("INGRESASTE");
             // Intentar asignar el nuevo rol al usuario
             boolean isUpdated = userService.updateUserRole(userRut, newRole);
 
@@ -145,9 +146,9 @@ public class UserController {
                 return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
             }
         } else {
+            System.out.println("NO TIENE ROL DE ADMIN");
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
         }
-
     }
 
     @GetMapping("/sessionInfo")

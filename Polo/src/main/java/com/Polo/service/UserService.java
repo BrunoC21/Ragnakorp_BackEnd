@@ -60,6 +60,7 @@ public class UserService {
 
     // busqueda de usuario por rut
     public Optional<UserDTO> findUserByRut(String userRut) {
+        System.out.println(userRut);
         Optional<User> optional = userRepository.findByUserRut(userRut);
         if (optional.isPresent()) {
             System.out.println("Usuario encontrado");
