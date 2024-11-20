@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Polocenter;
 import com.Polo.service.PoloCenterService;
-import com.Polo.service.UserService;
+import com.Polo.userDataSession.SessionUtils;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PoloCenterController {
     private final PoloCenterService poloCenterService;
-    private final UserService userService;
 
     @PostMapping("/create")
     public ResponseEntity<String> createPoloCenter(@RequestBody Polocenter poloCenter) {
@@ -60,17 +61,20 @@ public class PoloCenterController {
     public ResponseEntity<String> createPoloCenterByAdministrativeName(
             @PathVariable String administrativeName,
             @PathVariable String userRut,
-            @RequestBody Polocenter polocenter) {
+            @RequestBody Polocenter polocenter, HttpSession session) {
 
-        if (!userService.isAdministrative(administrativeName, userRut)) {
-            return ResponseEntity.status(403).body("No tienes permisos para crear un centro");
-        }
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+        String role = sessionData.get("role").toString();
 
-        boolean chek = poloCenterService.createPoloCenter(polocenter);
-        if (chek) {
-            return ResponseEntity.ok("Centro creado exitosamente");
+        if ("ADMINISTRATIVE".equals(role)) {
+            boolean chek = poloCenterService.createPoloCenter(polocenter);
+            if (chek) {
+                return ResponseEntity.ok("Centro creado exitosamente");
+            } else {
+                return ResponseEntity.status(400).body("Centro no creado");
+            }
         } else {
-            return ResponseEntity.status(400).body("Centro no creado");
+            return ResponseEntity.status(403).body("Usuario sin permisos");
         }
     }
 

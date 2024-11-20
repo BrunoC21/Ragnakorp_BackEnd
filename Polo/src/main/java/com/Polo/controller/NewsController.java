@@ -20,7 +20,6 @@ import com.Polo.model.News;
 import com.Polo.model.NewsDTO;
 import com.Polo.model.NewsMapper;
 import com.Polo.service.NewsService;
-import com.Polo.service.UserService;
 import com.Polo.userDataSession.SessionUtils;
 
 import jakarta.servlet.http.HttpSession;
@@ -36,13 +35,10 @@ public class NewsController {
     private NewsService newsService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private NewsMapper newsMapper;
 
     // crear noticia por adminstrativos
-    @PostMapping("/create/{adminRut}")
+    @PostMapping("/create")
     public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO, HttpSession session) {
 
         Map<String, Object> sessionData = SessionUtils.getUserSession(session);

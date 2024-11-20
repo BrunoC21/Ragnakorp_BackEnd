@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 
 import com.Polo.model.*;
 import com.Polo.service.ProjectService;
-import com.Polo.service.UserService;
 import com.Polo.userDataSession.SessionUtils;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,7 +29,6 @@ import jakarta.servlet.http.HttpSession;
 @CrossOrigin("http://127.0.0.1:5500")
 public class ProjectController {
     private final ProjectService projectService;
-    private final UserService userService;
 
     private final ProjectMapper projectMapper;
 
