@@ -117,7 +117,7 @@ public class UserController {
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
         if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
             SessionUtils.setUserSession(userDTO.get(), rut, session); // Uso del método de utilidades 
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto" + userDTO);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto usuario: " + userDTO.get().getUserName());
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
@@ -128,12 +128,7 @@ public class UserController {
     public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
         Map<String, Object> sessionData = SessionUtils.getUserSession(session);
 
-        System.out.println(sessionData.get("userRut"));
-        System.out.println(sessionData.get("username"));
-        System.out.println(sessionData.get("role"));
-
         String role = sessionData.get("role").toString();
-        System.out.println(role);
 
         if ("ADMIN".equals(role)) {
             System.out.println("INGRESASTE");

@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,9 @@ import com.Polo.model.NewsDTO;
 import com.Polo.model.NewsMapper;
 import com.Polo.service.NewsService;
 import com.Polo.service.UserService;
+import com.Polo.userDataSession.SessionUtils;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,25 +41,26 @@ public class NewsController {
     @Autowired
     private NewsMapper newsMapper;
 
-    // crear noticia por adminstradores
+    // crear noticia por adminstrativos
     @PostMapping("/create/{adminRut}")
-    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO) {
+    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO, HttpSession session) {
 
-        // Validar si el usuario que está solicitando es ADMIN
-        if (!userService.isAdministrativeRut(adminRut)) {
-            return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+        String role = sessionData.get("role").toString();
+
+        if ("ADMINISTRATIVE".equals(role)) {
+            News news = newsMapper.newsDTOToNews(newsDTO);
+    
+            boolean chek = newsService.createNews(news, adminRut);
+            if (chek) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
+            }
         } else {
-            System.out.println("El admin name esta correcto");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario no tiene el rol necesario");
         }
 
-        News news = newsMapper.newsDTOToNews(newsDTO);
-
-        boolean chek = newsService.createNews(news, adminRut);
-        if (chek) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
-        }
     }
 
     // eliminar noticias, si bien esta creado, no se permite utilizar en un principio, ya que al hacer las noticias, estos guardan su pk en una 3era tabla que nace de la creacion de esta junto a la pk del autor, por lo cual para eliminarla se requiere una mayor logica.
