@@ -1,5 +1,6 @@
 package com.Polo.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-@CrossOrigin("http://127.0.0.1:5500")
+@CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
 public class UserController {
 
     // private final UserService userService;
@@ -111,24 +112,39 @@ public class UserController {
     }
 
     // apartado login
+
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
+    @CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
         System.out.println(rut);
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
         if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
+            // Establecer los datos de sesión
             SessionUtils.setUserSession(userDTO.get(), rut, session);
 
-            // Verificar la sesión inmediatamente después de configurarla
-            System.out.println("Verificación de sesión tras login:");
-            System.out.println("userRut: " + session.getAttribute("userRut"));
-            System.out.println("username: " + session.getAttribute("username"));
+            // Crear el mapa con los datos de sesión
+            Map<String, Object> sessionData = new HashMap<>();
+            sessionData.put("userRut", rut);
+            sessionData.put("username", userDTO.get().getUserName());
+            sessionData.put("lastName", userDTO.get().getUserLastName());
+            sessionData.put("role", userDTO.get().getUserRole());
+            sessionData.put("email", userDTO.get().getUserEmail());
+            sessionData.put("phone", userDTO.get().getUserPhone());
 
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto usuario: " + userDTO.get().getUserName());
+            System.out.println(" ");
+            System.out.println(sessionData);
+            System.out.println(" ");
+
+            // Retornar los datos de sesión y una respuesta HTTP 200 OK
+            return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .header("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure")
+                .body(sessionData);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            // Si el login falla, retornar un error 401 con un mensaje
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
         }
     }
-
 
     // apartado para asignar roles a los usuarios
     @PutMapping("/assignRole/{adminRut}")
@@ -153,29 +169,17 @@ public class UserController {
         }
     }
 
-    @GetMapping("/sessionInfo")
-    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
-        // Obtener los datos de la sesión
-        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
 
-        System.out.println(" ");
-        System.out.println(sessionData);
-    
-        // Validar si la sesión tiene datos significativos
+    // apartado para recuperar los datos de sesion
+    @GetMapping("/sessionInfo")
+    @CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
+    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
         if (sessionData.isEmpty() || sessionData.get("userRut") == null) {
-            System.out.println(" ");
-            System.out.println(sessionData);
-            System.out.println("No hay sesión iniciada.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                 .body(Map.of("error", "No hay sesión iniciada"));
+                                .body(Map.of("error", "No hay sesión iniciada"));
         }
-    
-        // Loguear los datos de sesión recuperados
-        System.out.println("Información de sesión recuperada:");
-        sessionData.forEach((key, value) -> System.out.println(key + ": " + value));
-    
-        // Responder con los datos de sesión
         return ResponseEntity.ok(sessionData);
-    }    
+    }  
 
 }
