@@ -39,15 +39,16 @@ public class NewsController {
 
     // crear noticia por adminstrativos
     @PostMapping("/create")
-    public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestBody NewsDTO newsDTO, HttpSession session) {
+    public ResponseEntity<String> createNew(@RequestBody NewsDTO newsDTO, HttpSession session) {
 
         Map<String, Object> sessionData = SessionUtils.getUserSession(session);
         String role = sessionData.get("role").toString();
+        String rut = sessionData.get("userRut").toString();
 
         if ("ADMINISTRATIVE".equals(role)) {
             News news = newsMapper.newsDTOToNews(newsDTO);
     
-            boolean chek = newsService.createNews(news, adminRut);
+            boolean chek = newsService.createNews(news, rut);
             if (chek) {
                 return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
             } else {
