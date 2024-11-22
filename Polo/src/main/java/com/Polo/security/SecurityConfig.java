@@ -15,24 +15,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/user/login", "/user/create").permitAll() // Permitir acceso sin autenticación
-                .requestMatchers("/user/sessionInfo").permitAll()
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/user/login", "/user/create", "/user/search", "/user/search/rut/**", "/user/assignRole/**", "/project/create/**", "/news/create/**", "/project/search", "/user/sessionInfo", "/news/search", "/news/create").permitAll() // Permitir acceso sin autenticación
                 .anyRequest().authenticated()
-            )
-            .logout(logout -> logout
+                )
+                .logout(logout -> logout
                 .logoutUrl("/user/logout")
                 .logoutSuccessUrl("/user/login?logout=true")
                 .permitAll()
-            )
-            .sessionManagement(session -> session
+                )
+                .sessionManagement(session -> session
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(true)
-            )
-            .exceptionHandling(ex -> ex
+                )
+                .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            );
+                );
 
         return http.build();
     }

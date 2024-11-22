@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 
 import com.Polo.model.*;
 import com.Polo.service.ProjectService;
-import com.Polo.service.UserService;
+import com.Polo.userDataSession.SessionUtils;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/project")
@@ -26,7 +29,6 @@ import com.Polo.service.UserService;
 @CrossOrigin("http://127.0.0.1:5500")
 public class ProjectController {
     private final ProjectService projectService;
-    private final UserService userService;
 
     private final ProjectMapper projectMapper;
 
@@ -85,18 +87,24 @@ public class ProjectController {
     }
 
     @PostMapping("/create/{administrativeName}/{userRut}")
-    public ResponseEntity<String> createProjectByAdministrativeName(@PathVariable String administrativeName, @PathVariable String userRut, @RequestBody Project project) {
+    public ResponseEntity<String> createProjectByAdministrativeName(@PathVariable String administrativeName, @PathVariable String userRut, @RequestBody Project project, HttpSession session) {
+
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+
+        String role = sessionData.get("role").toString();
+        String rut = sessionData.get("userRut").toString();
     
-        if (!userService.isAdministrative(administrativeName, userRut)) {
-            return ResponseEntity.status(403).body("No tienes permisos para crear un proyecto");
-        }
-    
-        boolean chek = projectService.createProject(project, userRut);
-        if (chek) {
-            return ResponseEntity.ok("Proyecto creado exitosamente");
+        if ("ADMINISTRATIVE".equals(role) && userRut.equals(rut)) {
+            boolean chek = projectService.createProject(project, userRut);
+            if (chek) {
+                return ResponseEntity.ok("Proyecto creado exitosamente");
+            } else {
+                return ResponseEntity.status(400).body("Proyecto no creado");
+            }
         } else {
-            return ResponseEntity.status(400).body("Proyecto no creado");
+            return ResponseEntity.status(400).body("El usuario no tiene los permisos necesarios");
         }
+
     }
     
 }
