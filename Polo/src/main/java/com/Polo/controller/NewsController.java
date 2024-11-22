@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.Polo.model.News;
 import com.Polo.model.NewsDTO;
 import com.Polo.model.NewsMapper;
+import com.Polo.service.FileStorageService;
 import com.Polo.service.NewsService;
 import com.Polo.userDataSession.SessionUtils;
 
@@ -44,52 +45,46 @@ public class NewsController {
     @Autowired
     private NewsMapper newsMapper;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     // Crear noticia por administrativos
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> createNew(
-        @RequestPart("news") NewsDTO newsDTO,
-        @RequestPart("image") MultipartFile imageFile,
-        HttpSession session
-    ) {
-        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
-        String role = sessionData.get("role").toString();
-        String rut = sessionData.get("userRut").toString();
+public ResponseEntity<String> createNew(
+    @RequestPart("news") NewsDTO newsDTO,
+    @RequestPart("image") MultipartFile imageFile,
+    HttpSession session
+) {
+    Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+    String role = sessionData.get("role").toString();
+    String rut = sessionData.get("userRut").toString();
 
-        if ("ADMINISTRATIVE".equals(role)) {
-            // Validar y guardar la imagen
-            String randomFileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
-            Path imagePath = Paths.get("Polo\\src\\main\\resources\\static\\images\\", randomFileName);
+    if ("ADMINISTRATIVE".equals(role)) {
+        try {
+            // Guardar la imagen y obtener el nombre del archivo
+            String imageName = fileStorageService.saveFile(imageFile);
 
-            try {
-                // Crear directorios si no existen
-                Files.createDirectories(imagePath.getParent());
+            // Mapear NewsDTO a News
+            News news = newsMapper.newsDTOToNews(newsDTO);
+            news.setPrimaryImage(imageName);
 
-                // Guardar el archivo en la ruta especificada
-                imageFile.transferTo(imagePath.toFile());
-
-                // Mapear NewsDTO a News
-                News news = newsMapper.newsDTOToNews(newsDTO);
-
-                // Asignar la ruta de la imagen al objeto News
-                news.setPrimaryImage(randomFileName);
-
-                // Crear la noticia
-                boolean chek = newsService.createNews(news, rut);
-                if (chek) {
-                    return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
-                } else {
-                    // Si algo falla, eliminar la imagen subida
-                    Files.deleteIfExists(imagePath);
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar la imagen");
+            // Crear la noticia
+            boolean created = newsService.createNews(news, rut);
+            if (created) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
+            } else {
+                // Si algo falla, eliminar la imagen subida
+                fileStorageService.deleteFile(imageName);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario no tiene el rol necesario");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar la imagen");
         }
+    } else {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario no tiene el rol necesario");
     }
+}
 
     // Eliminar noticias
     @DeleteMapping("/delete/{id}")

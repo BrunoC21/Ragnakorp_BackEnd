@@ -147,8 +147,8 @@ public class UserController {
     }
 
     // apartado para asignar roles a los usuarios
-    @PutMapping("/assignRole/{adminRut}")
-    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
+    @PutMapping("/assignRole/")
+    public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
         Map<String, Object> sessionData = SessionUtils.getUserSession(session);
 
         String role = sessionData.get("role").toString();
