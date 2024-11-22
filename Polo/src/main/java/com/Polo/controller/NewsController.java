@@ -1,10 +1,14 @@
 package com.Polo.controller;
 
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +31,7 @@ import com.Polo.model.NewsMapper;
 import com.Polo.service.FileStorageService;
 import com.Polo.service.NewsService;
 import com.Polo.userDataSession.SessionUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -46,42 +52,53 @@ public class NewsController {
     private FileStorageService fileStorageService;
 
     // Crear noticia por administrativos
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<String> createNew(
-    @RequestPart("news") NewsDTO newsDTO,
-    @RequestPart("image") MultipartFile imageFile,
-    HttpSession session
-) {
-    Map<String, Object> sessionData = SessionUtils.getUserSession(session);
-    String role = sessionData.get("role").toString();
-    String rut = sessionData.get("userRut").toString();
-
-    if ("ADMINISTRATIVE".equals(role)) {
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> createNew(@RequestBody Map<String, Object> payload) {
         try {
-            // Guardar la imagen y obtener el nombre del archivo
-            String imageName = fileStorageService.saveFile(imageFile);
 
-            // Mapear NewsDTO a News
-            News news = newsMapper.newsDTOToNews(newsDTO);
-            news.setPrimaryImage(imageName);
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
 
+            // Extraer los datos de la sesión y de la noticia
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
+            NewsDTO newsDTO = objectMapper.convertValue(payload.get("news"), NewsDTO.class);
+    
+            // Validar sesión
+            String role = sessionData.get("role").toString();
+            String rut = sessionData.get("userRut").toString();
+            if (!"ADMINISTRATIVE".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
+            }
+    
+            // Decodificar la imagen Base64 si existe
+            if (newsDTO.getPrimaryImage() != null && !newsDTO.getPrimaryImage().isEmpty()) {
+                byte[] imageBytes = Base64.getDecoder().decode(newsDTO.getPrimaryImage());
+                String imageName = UUID.randomUUID().toString() + ".jpg";
+    
+                // Guardar la imagen
+                Path imagePath = Paths.get("Polo/src/main/resources/static/images/", imageName);
+                Files.createDirectories(imagePath.getParent());
+                Files.write(imagePath, imageBytes);
+    
+                // Asignar el nombre de la imagen a la noticia
+                newsDTO.setPrimaryImage(imageName);
+            }
+    
             // Crear la noticia
+            News news = newsMapper.newsDTOToNews(newsDTO);
             boolean created = newsService.createNews(news, rut);
+    
             if (created) {
                 return ResponseEntity.status(HttpStatus.CREATED).body("Noticia creada");
             } else {
-                // Si algo falla, eliminar la imagen subida
-                fileStorageService.deleteFile(imageName);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Noticia no creada");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear la noticia");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar la imagen");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
         }
-    } else {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario no tiene el rol necesario");
     }
-}
 
     // Eliminar noticias
     @DeleteMapping("/delete/{id}")
