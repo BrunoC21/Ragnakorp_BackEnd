@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Polocenter;
 import com.Polo.service.PoloCenterService;
-import com.Polo.userDataSession.SessionUtils;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -57,13 +55,14 @@ public class PoloCenterController {
         return poloCenter.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    @PostMapping("/create/{administrativeName}/{userRut}")
+    @PostMapping("/create")
     public ResponseEntity<String> createPoloCenterByAdministrativeName(
-            @PathVariable String administrativeName,
-            @PathVariable String userRut,
-            @RequestBody Polocenter polocenter, HttpSession session) {
+            @RequestBody Polocenter polocenter, @RequestBody Map<String, Object> session) {
 
-        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+
         String role = sessionData.get("role").toString();
 
         if ("ADMINISTRATIVE".equals(role)) {

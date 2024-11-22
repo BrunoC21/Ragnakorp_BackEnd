@@ -19,9 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.Polo.model.*;
 import com.Polo.service.ProjectService;
-import com.Polo.userDataSession.SessionUtils;
-
-import jakarta.servlet.http.HttpSession;
+import com.Polo.service.UserService;
 
 @RestController
 @RequestMapping("/project")
@@ -30,21 +28,21 @@ import jakarta.servlet.http.HttpSession;
 public class ProjectController {
     private final ProjectService projectService;
 
-    private final ProjectMapper projectMapper;
+    private final UserService userService;
 
-    // crear proyectos
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
+    // // crear proyectos
+    // @PostMapping("/create")
+    // public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
 
-        Project project = projectMapper.projectDTOToProject(projectDTO);
+    //     Project project = projectMapper.projectDTOToProject(projectDTO);
 
-        boolean chek = projectService.createProject(project, null);
-        if (chek) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
-        }
-    }
+    //     boolean chek = projectService.createProject(project, null);
+    //     if (chek) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
+    //     }
+    // }
 
     // eliminar proyectos, si bien esta creado, no se permite utilizar en un principio, ya que al hacer postulaciones a los proyectos, estos guardan su pk en una 3era tabla que nace de la postulacion al proyecto, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
@@ -86,16 +84,20 @@ public class ProjectController {
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    @PostMapping("/create/{administrativeName}/{userRut}")
-    public ResponseEntity<String> createProjectByAdministrativeName(@PathVariable String administrativeName, @PathVariable String userRut, @RequestBody Project project, HttpSession session) {
+    @PostMapping("/create")
+    public ResponseEntity<String> createProjectByAdministrativeName(@RequestBody Project project, @RequestBody Map<String, Object> session) {
 
-        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
-
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        
         String role = sessionData.get("role").toString();
         String rut = sessionData.get("userRut").toString();
+
+        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
     
-        if ("ADMINISTRATIVE".equals(role) && userRut.equals(rut)) {
-            boolean chek = projectService.createProject(project, userRut);
+        if ("ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
+            boolean chek = projectService.createProject(project, rut);
             if (chek) {
                 return ResponseEntity.ok("Proyecto creado exitosamente");
             } else {

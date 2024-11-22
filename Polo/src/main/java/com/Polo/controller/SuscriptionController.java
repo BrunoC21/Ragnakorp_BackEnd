@@ -65,10 +65,13 @@ public class SuscriptionController {
     }
 
     // elimiar suscriptor por admin
-    @DeleteMapping("/deleteSuscriptor/{adminName}")
-    public ResponseEntity<String> deleteSuscriptorByAdmin(@PathVariable String adminName, @RequestParam String subEmail, HttpSession session) {
+    @DeleteMapping("/deleteSuscriptor")
+    public ResponseEntity<String> deleteSuscriptorByAdmin(@RequestParam String subEmail, @RequestBody Map<String, Object> session) {
 
-        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+
         String role = sessionData.get("role").toString();
 
         if ("ADMIN".equals(role)) {
