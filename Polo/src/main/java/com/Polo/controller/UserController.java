@@ -170,7 +170,7 @@ public class UserController {
     // }
 
     // apartado para asignar rol actualizado a datos de sesion
-    @PutMapping("/assignRole/")
+    @PutMapping("/assignRole")
     public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, @RequestBody Map<String, Object> session) {
 
         // extraer datos de sesion

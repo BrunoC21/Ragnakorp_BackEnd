@@ -37,18 +37,14 @@ public class EnvironmentVinculationController {
     // public ResponseEntity<String> createActivity(@RequestBody
     // EnvironmentVinculationDTO environmentVinculationDTO) {
 
-    // EnvironmentVinculation environmentVinculation = environmentVinculationMapper
-    // .environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
+    //     EnvironmentVinculation environmentVinculation = environmentVinculationMapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
 
-    // boolean chek =
-    // environmentVinculationService.createActivity(environmentVinculation);
-    // if (chek) {
-    // return ResponseEntity.status(HttpStatus.CREATED).body("Actividad creada
-    // exitosamente");
-    // } else {
-    // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no
-    // creada");
-    // }
+    //     boolean chek = environmentVinculationService.createActivity(environmentVinculation, 25);
+    //     if (chek) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body("Actividad creadaexitosamente");
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no creada");
+    //     }
     // }
 
     // eliminar actividades
@@ -94,6 +90,7 @@ public class EnvironmentVinculationController {
         return environmentVinculationDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
+    // Crear actividades poor administrativos
     @PostMapping("/create")
     public ResponseEntity<String> createActivityByAdministrativeName(@RequestBody EnvironmentVinculationDTO environmentVinculationDTO, @RequestBody Map<String, Object> session) {
         

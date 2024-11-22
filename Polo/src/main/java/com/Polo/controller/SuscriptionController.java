@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Suscription;
 import com.Polo.service.SuscriptionService;
-import com.Polo.userDataSession.SessionUtils;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -52,17 +50,17 @@ public class SuscriptionController {
     }
 
     // autoeliminacion de suscriptor
-    @DeleteMapping("/deleteSuscriptor")
-    public ResponseEntity<String> deleteSuscriptor(@RequestParam String subEmail) {
-        // Intentar eliminar al usuario
-        boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
+    // @DeleteMapping("/deleteSuscriptor")
+    // public ResponseEntity<String> deleteSuscriptor(@RequestParam String subEmail) {
+    //     // Intentar eliminar al usuario
+    //     boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
 
-        if (check) {
-            return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
-        }
-    }
+    //     if (check) {
+    //         return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
+    //     } else {
+    //         return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
+    //     }
+    // }
 
     // elimiar suscriptor por admin
     @DeleteMapping("/deleteSuscriptor")
