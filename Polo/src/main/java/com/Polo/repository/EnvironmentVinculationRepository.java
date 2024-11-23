@@ -12,6 +12,3 @@ public interface EnvironmentVinculationRepository extends JpaRepository<Environm
     Optional<EnvironmentVinculation> findByActivityName(String environmentVinculationName);
 
 }
-
-}
-

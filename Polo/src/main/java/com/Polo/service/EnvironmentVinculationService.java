@@ -88,8 +88,8 @@ public class EnvironmentVinculationService {
         return Optional.empty();
     }
 
-
-    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id, EnvironmentVinculationDTO environmentVinculationDTO) {
+    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id,
+            EnvironmentVinculationDTO environmentVinculationDTO) {
         // Buscar la entidad por ID
         Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
 
@@ -99,7 +99,8 @@ public class EnvironmentVinculationService {
             // Actualizar los campos con los datos del DTO
             entity.setActivityName(environmentVinculationDTO.getActivityName());
             entity.setActivityDescription(environmentVinculationDTO.getActivityDescription());
-            entity.setUser(mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
+            entity.setUser(
+                    mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
 
             // Guardar los cambios
             EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
@@ -111,6 +112,3 @@ public class EnvironmentVinculationService {
         return null; // No se encontró la entidad
     }
 }
-
-}
-

@@ -6,16 +6,13 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface EnvironmentVinculationMapper {
-    EnvironmentVinculationDTO environmentVinculationToEnvironmentVinculationDTO(
-            EnvironmentVinculation environmentVinculation);
+        EnvironmentVinculationDTO environmentVinculationToEnvironmentVinculationDTO(
+                        EnvironmentVinculation environmentVinculation);
 
-    EnvironmentVinculation environmentVinculationDTOToEnvironmentVinculation(
-            EnvironmentVinculationDTO environmentVinculationDTO);
+        EnvironmentVinculation environmentVinculationDTOToEnvironmentVinculation(
+                        EnvironmentVinculationDTO environmentVinculationDTO);
 
-    List<EnvironmentVinculationDTO> environmentVinculationListToEnvironmentVinculationDTOList(
-            List<EnvironmentVinculation> environmentVinculations);
-
-}
+        List<EnvironmentVinculationDTO> environmentVinculationListToEnvironmentVinculationDTOList(
+                        List<EnvironmentVinculation> environmentVinculations);
 
 }
-
