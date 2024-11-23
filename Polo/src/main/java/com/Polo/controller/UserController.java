@@ -1,6 +1,8 @@
 package com.Polo.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,15 @@ import com.Polo.model.User;
 import com.Polo.model.UserDTO;
 import com.Polo.model.UserMapper;
 import com.Polo.service.UserService;
+import com.Polo.userDataSession.SessionUtils;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-@CrossOrigin("http://127.0.0.1:5500")
+@CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
 public class UserController {
 
     // private final UserService userService;
@@ -69,7 +73,7 @@ public class UserController {
         List<UserDTO> userDTOList = userService.findAllUsers();
         if (!userDTOList.isEmpty()) {
             return new ResponseEntity<>(userDTOList, HttpStatus.OK);
-        } else { 
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -79,7 +83,7 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserById(@PathVariable int id) {
         Optional<UserDTO> userDTO = userService.findUserById(id);
         if (userDTO.isPresent()) {
-            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(userDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -90,7 +94,7 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserByRut(@PathVariable String userRut) {
         Optional<UserDTO> userDTO = userService.findUserByRut(userRut);
         if (userDTO.isPresent()) {
-            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(userDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -101,65 +105,107 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserByName(@PathVariable String userName) {
         Optional<UserDTO> userDTO = userService.findUserByName(userName);
         if (userDTO.isPresent()) {
-            return new ResponseEntity<>(userDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(userDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     // apartado login
+
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String rut, @RequestParam String password) {
+    @CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
+        System.out.println(rut);
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
         if (userDTO.isPresent() && userService.validateLogin(rut, password)) {
-            System.out.println("SESION INICIADA CORRECTAMENTE");
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Login correcto");
+            // Establecer los datos de sesión
+            SessionUtils.setUserSession(userDTO.get(), rut, session);
+
+            // Crear el mapa con los datos de sesión
+            Map<String, Object> sessionData = new HashMap<>();
+            sessionData.put("userRut", rut);
+            sessionData.put("username", userDTO.get().getUserName());
+            sessionData.put("lastName", userDTO.get().getUserLastName());
+            sessionData.put("role", userDTO.get().getUserRole());
+            sessionData.put("email", userDTO.get().getUserEmail());
+            sessionData.put("phone", userDTO.get().getUserPhone());
+
+            System.out.println(" ");
+            System.out.println(sessionData);
+            System.out.println(" ");
+
+            // Retornar los datos de sesión y una respuesta HTTP 200 OK
+            return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .header("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure")
+                .body(sessionData);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            // Si el login falla, retornar un error 401 con un mensaje
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
         }
     }
 
-    // apartado para eliminar usuarios  REVISAR
-    // @DeleteMapping("/delete/admin/{adminRut}")
-    // public ResponseEntity<String> deleteUserByAdmin(@PathVariable String adminRut, @RequestParam String userRut) {
+    // apartado para asignar roles a los usuarios
+    // @PutMapping("/assignRole/")
+    // public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
+    //     Map<String, Object> sessionData = SessionUtils.getUserSession(session);
 
-    //     // Validar si el usuario que está solicitando es ADMIN
-    //     if (!userService.isAdminByRut(adminRut)) {
+    //     String role = sessionData.get("role").toString();
+
+    //     if ("ADMIN".equals(role)) {
+    //         System.out.println("INGRESASTE");
+    //         // Intentar asignar el nuevo rol al usuario
+    //         boolean isUpdated = userService.updateUserRole(userRut, newRole);
+
+    //         if (isUpdated) {
+    //             return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
+    //         } else {
+    //             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
+    //         }
+    //     } else {
+    //         System.out.println("NO TIENE ROL DE ADMIN");
     //         return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-    //     } else {
-    //         System.out.println("---------------");
-    //         System.out.println("ADMIN CORRECTO");
-    //         System.out.println("---------------");
-    //     }
-
-    //     // Intentar eliminar al usuario
-    //     boolean check = userService.deleteUserByRut(userRut);
-
-    //     if (check) {
-    //         return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
-    //     } else {
-    //         return new ResponseEntity<>("User cannot be deleted", HttpStatus.NOT_FOUND);
     //     }
     // }
 
-    // apartado para asignar roles a los usuarios
-    @PutMapping("/assignRole/{adminRut}")
-    public ResponseEntity<String> assignRoleByAdmin(@PathVariable String adminRut, @RequestParam String userRut, @RequestParam String newRole) {
+    // apartado para asignar rol actualizado a datos de sesion
+    @PutMapping("/assignRole")
+    public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, @RequestBody Map<String, Object> session) {
 
-        if (!userService.isAdminByRut(adminRut)) {
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+
+        String role = sessionData.get("role").toString();
+
+        if ("ADMIN".equals(role)) {
+            System.out.println("INGRESASTE");
+            // Intentar asignar el nuevo rol al usuario
+            boolean isUpdated = userService.updateUserRole(userRut, newRole);
+
+            if (isUpdated) {
+                return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            System.out.println("NO TIENE ROL DE ADMIN");
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-        } else {
-            System.out.println("El admin name esta correcto");
-        }
-
-        // Intentar asignar el nuevo rol al usuario
-        boolean isUpdated = userService.updateUserRole(userRut, newRole);
-
-        if (isUpdated) {
-            return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    // apartado para recuperar los datos de sesion
+    @GetMapping("/sessionInfo")
+    @CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
+    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
+        Map<String, Object> sessionData = SessionUtils.getUserSession(session);
+        if (sessionData.isEmpty() || sessionData.get("userRut") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                .body(Map.of("error", "No hay sesión iniciada"));
+        }
+        return ResponseEntity.ok(sessionData);
+    }  
 
 }

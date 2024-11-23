@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -26,23 +27,22 @@ import com.Polo.service.UserService;
 @CrossOrigin("http://127.0.0.1:5500")
 public class ProjectController {
     private final ProjectService projectService;
+
     private final UserService userService;
 
-    private final ProjectMapper projectMapper;
+    // // crear proyectos
+    // @PostMapping("/create")
+    // public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
 
-    // crear proyectos
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
+    //     Project project = projectMapper.projectDTOToProject(projectDTO);
 
-        Project project = projectMapper.projectDTOToProject(projectDTO);
-
-        boolean chek = projectService.createProject(project, null);
-        if (chek) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
-        }
-    }
+    //     boolean chek = projectService.createProject(project, null);
+    //     if (chek) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
+    //     }
+    // }
 
     // eliminar proyectos, si bien esta creado, no se permite utilizar en un principio, ya que al hacer postulaciones a los proyectos, estos guardan su pk en una 3era tabla que nace de la postulacion al proyecto, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
@@ -84,19 +84,29 @@ public class ProjectController {
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    @PostMapping("/create/{administrativeName}/{userRut}")
-    public ResponseEntity<String> createProjectByAdministrativeName(@PathVariable String administrativeName, @PathVariable String userRut, @RequestBody Project project) {
+    @PostMapping("/create")
+    public ResponseEntity<String> createProjectByAdministrativeName(@RequestBody Project project, @RequestBody Map<String, Object> session) {
+
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        
+        String role = sessionData.get("role").toString();
+        String rut = sessionData.get("userRut").toString();
+
+        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
     
-        if (!userService.isAdministrative(administrativeName, userRut)) {
-            return ResponseEntity.status(403).body("No tienes permisos para crear un proyecto");
-        }
-    
-        boolean chek = projectService.createProject(project, userRut);
-        if (chek) {
-            return ResponseEntity.ok("Proyecto creado exitosamente");
+        if ("ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
+            boolean chek = projectService.createProject(project, rut);
+            if (chek) {
+                return ResponseEntity.ok("Proyecto creado exitosamente");
+            } else {
+                return ResponseEntity.status(400).body("Proyecto no creado");
+            }
         } else {
-            return ResponseEntity.status(400).body("Proyecto no creado");
+            return ResponseEntity.status(400).body("El usuario no tiene los permisos necesarios");
         }
+
     }
     
 }

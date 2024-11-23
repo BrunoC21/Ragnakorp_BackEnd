@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Polocenter;
 import com.Polo.service.PoloCenterService;
-import com.Polo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,17 +23,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PoloCenterController {
     private final PoloCenterService poloCenterService;
-    private final UserService userService;
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createPoloCenter(@RequestBody Polocenter poloCenter) {
-        boolean chek = poloCenterService.createPoloCenter(poloCenter);
-        if (chek) {
-            return ResponseEntity.ok("Centro creado exitosamente");
-        } else {
-            return ResponseEntity.status(404).body("Centro no creado");
-        }
-    }
+    // @PostMapping("/create")
+    // public ResponseEntity<String> createPoloCenter(@RequestBody Polocenter poloCenter) {
+    //     boolean chek = poloCenterService.createPoloCenter(poloCenter);
+    //     if (chek) {
+    //         return ResponseEntity.ok("Centro creado exitosamente");
+    //     } else {
+    //         return ResponseEntity.status(404).body("Centro no creado");
+    //     }
+    // }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deletePoloCenter(@PathVariable int id) {
@@ -56,21 +55,25 @@ public class PoloCenterController {
         return poloCenter.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    @PostMapping("/create/{administrativeName}/{userRut}")
+    @PostMapping("/create")
     public ResponseEntity<String> createPoloCenterByAdministrativeName(
-            @PathVariable String administrativeName,
-            @PathVariable String userRut,
-            @RequestBody Polocenter polocenter) {
+            @RequestBody Polocenter polocenter, @RequestBody Map<String, Object> session) {
 
-        if (!userService.isAdministrative(administrativeName, userRut)) {
-            return ResponseEntity.status(403).body("No tienes permisos para crear un centro");
-        }
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
 
-        boolean chek = poloCenterService.createPoloCenter(polocenter);
-        if (chek) {
-            return ResponseEntity.ok("Centro creado exitosamente");
+        String role = sessionData.get("role").toString();
+
+        if ("ADMINISTRATIVE".equals(role)) {
+            boolean chek = poloCenterService.createPoloCenter(polocenter);
+            if (chek) {
+                return ResponseEntity.ok("Centro creado exitosamente");
+            } else {
+                return ResponseEntity.status(400).body("Centro no creado");
+            }
         } else {
-            return ResponseEntity.status(400).body("Centro no creado");
+            return ResponseEntity.status(403).body("Usuario sin permisos");
         }
     }
 

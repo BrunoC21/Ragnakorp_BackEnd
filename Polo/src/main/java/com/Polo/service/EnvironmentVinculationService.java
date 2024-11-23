@@ -87,4 +87,30 @@ public class EnvironmentVinculationService {
         System.out.println("Actividad no encontrada");
         return Optional.empty();
     }
+
+
+    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id, EnvironmentVinculationDTO environmentVinculationDTO) {
+        // Buscar la entidad por ID
+        Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
+
+        if (optionalEntity.isPresent()) {
+            EnvironmentVinculation entity = optionalEntity.get();
+
+            // Actualizar los campos con los datos del DTO
+            entity.setActivityName(environmentVinculationDTO.getActivityName());
+            entity.setActivityDescription(environmentVinculationDTO.getActivityDescription());
+            entity.setUser(mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
+
+            // Guardar los cambios
+            EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
+
+            // Retornar la entidad actualizada como DTO
+            return mapper.environmentVinculationToEnvironmentVinculationDTO(updatedEntity);
+        }
+
+        return null; // No se encontró la entidad
+    }
 }
+
+}
+

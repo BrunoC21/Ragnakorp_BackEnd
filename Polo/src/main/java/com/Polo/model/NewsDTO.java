@@ -10,10 +10,8 @@ public class NewsDTO {
     private String newsTitle;
     private String newsContent;
     private LocalDateTime newsDateTime;
-    private String secondaryImage;
     private String newsCategory;
     private String newsWriter;
-    private String newsPicture;
     private String primaryImage;
 }
 
