@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -36,18 +37,14 @@ public class EnvironmentVinculationController {
     // public ResponseEntity<String> createActivity(@RequestBody
     // EnvironmentVinculationDTO environmentVinculationDTO) {
 
-    // EnvironmentVinculation environmentVinculation = environmentVinculationMapper
-    // .environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
+    //     EnvironmentVinculation environmentVinculation = environmentVinculationMapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
 
-    // boolean chek =
-    // environmentVinculationService.createActivity(environmentVinculation);
-    // if (chek) {
-    // return ResponseEntity.status(HttpStatus.CREATED).body("Actividad creada
-    // exitosamente");
-    // } else {
-    // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no
-    // creada");
-    // }
+    //     boolean chek = environmentVinculationService.createActivity(environmentVinculation, 25);
+    //     if (chek) {
+    //         return ResponseEntity.status(HttpStatus.CREATED).body("Actividad creadaexitosamente");
+    //     } else {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no creada");
+    //     }
     // }
 
     // eliminar actividades
@@ -93,26 +90,45 @@ public class EnvironmentVinculationController {
         return environmentVinculationDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    @PostMapping("/create/{administrativeName}/{userRut}")
-    public ResponseEntity<String> createActivityByAdministrativeName(@PathVariable String administrativeName,
-            @PathVariable String userRut, @RequestBody EnvironmentVinculationDTO environmentVinculationDTO) {
-        if (!userService.isAdministrative(administrativeName, userRut)) {
-            return ResponseEntity.status(403).body("No tienes permisos para crear la actividad");
-        }
-        int id = userService.findUserByRut(userRut).get().getId();
-        EnvironmentVinculation environmentVinculation = environmentVinculationMapper
-                .environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
-        boolean chek = environmentVinculationService.createActivity(environmentVinculation, id);
-        if (chek) {
-            return ResponseEntity.ok("Actividad creada exitosamente");
+    // Crear actividades poor administrativos
+    @PostMapping("/create")
+    public ResponseEntity<String> createActivityByAdministrativeName(@RequestBody EnvironmentVinculationDTO environmentVinculationDTO, @RequestBody Map<String, Object> session) {
+        
+         // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+
+        String role = sessionData.get("role").toString();
+        String userRut = sessionData.get("userRut").toString();
+
+        if ("ADMINISTRATIVE".equals(role)) {
+            int id = userService.findUserByRut(userRut).get().getId();
+            EnvironmentVinculation environmentVinculation = environmentVinculationMapper
+                    .environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
+            
+            boolean chek = environmentVinculationService.createActivity(environmentVinculation, id);
+            
+            if (chek) {
+                return ResponseEntity.ok("Actividad creada exitosamente");
+            } else {
+                return ResponseEntity.status(400).body("Actividad no creada");
+            }
         } else {
-            return ResponseEntity.status(400).body("Actividad no creada");
+            return ResponseEntity.status(401).body("Usuario sin permisos");
         }
     }
 
     // metodo para modificar las actividades de vinculacion con el medio
-    @PutMapping("/update/{userRut}")
-    public ResponseEntity<EnvironmentVinculationDTO> updateEnvironmentVinculation(@PathVariable String userRut, @RequestBody EnvironmentVinculationDTO dto) {
+    @PutMapping("/update")
+    public ResponseEntity<EnvironmentVinculationDTO> updateEnvironmentVinculation(@RequestBody EnvironmentVinculationDTO dto, @RequestBody Map<String, Object> session) {
+
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+
+        // String role = sessionData.get("role").toString();
+        String userRut = sessionData.get("userRut").toString();
+
         int id = userService.findUserByRut(userRut).get().getId();
         EnvironmentVinculationDTO updated = environmentVinculationService.updateEnvironmentVinculation(id, dto);
 

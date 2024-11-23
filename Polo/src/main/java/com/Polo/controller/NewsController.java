@@ -1,6 +1,5 @@
 package com.Polo.controller;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,19 +20,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.Polo.model.News;
 import com.Polo.model.NewsDTO;
 import com.Polo.model.NewsMapper;
-import com.Polo.service.FileStorageService;
 import com.Polo.service.NewsService;
-import com.Polo.userDataSession.SessionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -47,9 +41,6 @@ public class NewsController {
 
     @Autowired
     private NewsMapper newsMapper;
-
-    @Autowired
-    private FileStorageService fileStorageService;
 
     // Crear noticia por administrativos
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
