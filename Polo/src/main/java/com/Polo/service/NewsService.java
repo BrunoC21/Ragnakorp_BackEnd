@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.Polo.Details.NewsUserDetailsService;
 import com.Polo.model.*;
 import com.Polo.repository.NewsRepository;
+import com.Polo.repository.SuscriptionRepository;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,17 +21,38 @@ public class NewsService {
 
     private final NewsRepository newsRepository;
     private final NewsUserDetailsService newsUserDetailsService;
-
+    private final SuscriptionRepository suscriptionRepository;
+    private final EmailService emailService;
     private final NewsMapper mapper = Mappers.getMapper(NewsMapper.class);
 
     public boolean createNews(News news, String userRut) {
         if (news != null) {
             newsRepository.save(news);
             newsUserDetailsService.saveDetails(news, userRut);
+            sendNewsNotificationToSubscribers(news);
             return true;
         } else {
             System.out.println("Error al crear la noticia");
             return false;
+        }
+    }
+
+    private void sendNewsNotificationToSubscribers(News news) {
+        List<Suscription> suscriptions = suscriptionRepository.findAll();
+
+        for (Suscription suscription : suscriptions) {
+            String subject = "Nueva noticia publicada: " + news.getNewsTitle();
+            String body = "<h1>" + news.getNewsTitle() + "</h1>"
+                    + "<p>" + news.getNewsContent() + "</p>"
+                    + "<p><strong>Categoría:</strong> " + news.getNewsCategory() + "</p>"
+                    + "<p><a href='http://tu-sitio.com/news/" + news.getId() + "'>Leer más</a></p>";
+
+            try {
+                emailService.sendEmail(suscription.getSubEmail(), subject, body);
+            } catch (MessagingException e) {
+                System.out.println("Error al enviar correo a: " + suscription.getSubEmail());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -76,12 +99,11 @@ public class NewsService {
         if (newsList != null && !newsList.isEmpty()) {
             System.out.println("Encontrado");
             return Optional.of(newsList.stream()
-                                    .map(mapper::newsToNewsDTO)
-                                    .collect(Collectors.toList()));
+                    .map(mapper::newsToNewsDTO)
+                    .collect(Collectors.toList()));
         }
         System.out.println("No encontrado");
         return Optional.empty();
     }
-
 
 }
