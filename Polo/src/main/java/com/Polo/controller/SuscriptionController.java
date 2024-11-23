@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Suscription;
+import com.Polo.model.SuscriptionsDTO;
+import com.Polo.model.SuscriptionsMapper;
 import com.Polo.service.SuscriptionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class SuscriptionController {
 
     private final SuscriptionService suscriptionService;
+    private final SuscriptionsMapper suscriptionsMapper;
 
     // crear suscriptor
     @PostMapping("/create")
@@ -64,11 +68,12 @@ public class SuscriptionController {
 
     // elimiar suscriptor por admin
     @DeleteMapping("/deleteSuscriptor")
-    public ResponseEntity<String> deleteSuscriptorByAdmin(@RequestParam String subEmail, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> deleteSuscriptorByAdmin(@RequestBody Map<String, Object> session) {
 
         // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        String subEmail = (String) session.get("subEmail");
 
         String role = sessionData.get("role").toString();
 

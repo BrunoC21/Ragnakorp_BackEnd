@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import com.Polo.model.*;
 import com.Polo.service.ProjectService;
 import com.Polo.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/project")
@@ -29,6 +30,8 @@ public class ProjectController {
     private final ProjectService projectService;
 
     private final UserService userService;
+
+    private final ProjectMapper projectMapper;
 
     // // crear proyectos
     // @PostMapping("/create")
@@ -85,18 +88,24 @@ public class ProjectController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createProjectByAdministrativeName(@RequestBody Project project, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> createProjectByAdministrativeName(@RequestBody Map<String, Object> session) {
+
+        // Crear una instancia de ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
 
         // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        ProjectDTO projectDTO = objectMapper.convertValue(session.get("project"), ProjectDTO.class);
+
+        Project project = projectMapper.projectDTOToProject(projectDTO);
         
         String role = sessionData.get("role").toString();
         String rut = sessionData.get("userRut").toString();
 
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
     
-        if ("ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
+        if ("INVESTIGADOR".equals(role) || "ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
             boolean chek = projectService.createProject(project, rut);
             if (chek) {
                 return ResponseEntity.ok("Proyecto creado exitosamente");

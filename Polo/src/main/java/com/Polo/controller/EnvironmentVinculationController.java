@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import com.Polo.model.*;
 import com.Polo.service.EnvironmentVinculationService;
 import com.Polo.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/environmentVinculation")
@@ -92,11 +93,15 @@ public class EnvironmentVinculationController {
 
     // Crear actividades poor administrativos
     @PostMapping("/create")
-    public ResponseEntity<String> createActivityByAdministrativeName(@RequestBody EnvironmentVinculationDTO environmentVinculationDTO, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> createActivityByAdministrativeName(@RequestBody Map<String, Object> session) {
         
+        // Crear una instancia de ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
+
          // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(session.get("environmentVinculation"), EnvironmentVinculationDTO.class);
 
         String role = sessionData.get("role").toString();
         String userRut = sessionData.get("userRut").toString();

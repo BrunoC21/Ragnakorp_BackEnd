@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Polo.model.PoloCenterDTO;
+import com.Polo.model.PoloCenterMapper;
 import com.Polo.model.Polocenter;
 import com.Polo.service.PoloCenterService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PoloCenterController {
     private final PoloCenterService poloCenterService;
+    private final PoloCenterMapper poloCenterMapper;
 
     // @PostMapping("/create")
     // public ResponseEntity<String> createPoloCenter(@RequestBody Polocenter poloCenter) {
@@ -56,12 +60,17 @@ public class PoloCenterController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createPoloCenterByAdministrativeName(
-            @RequestBody Polocenter polocenter, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> createPoloCenterByAdministrativeName(@RequestBody Map<String, Object> session) {
+
+        // Crear una instancia de ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
 
         // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        PoloCenterDTO poloC = objectMapper.convertValue(session.get("poloCenter"), PoloCenterDTO.class);
+
+        Polocenter polocenter = poloCenterMapper.toEntity(poloC);
 
         String role = sessionData.get("role").toString();
 
