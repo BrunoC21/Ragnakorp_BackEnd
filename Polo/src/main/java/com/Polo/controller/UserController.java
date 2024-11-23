@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Polo.model.NewsDTO;
 import com.Polo.model.User;
 import com.Polo.model.UserDTO;
 import com.Polo.model.UserMapper;
 import com.Polo.service.UserService;
 import com.Polo.userDataSession.SessionUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,22 @@ public class UserController {
 
     // crear usuarios
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> createUser(/*@RequestBody UserDTO userDTO*/ @RequestBody Map<String, Object> session) {
+
+        // Crear una instancia de ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        UserDTO userDTO = objectMapper.convertValue(session.get("userDTO"), UserDTO.class);
+
+        // Validar sesión
+        String role = sessionData.get("role").toString();
+
+        if (!"ADMIN".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
+        }
+
         // Convertir UserDTO a User
         User user = userMapper.userDTOToUser(userDTO);
 
