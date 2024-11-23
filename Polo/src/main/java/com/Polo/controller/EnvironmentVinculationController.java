@@ -1,7 +1,10 @@
 package com.Polo.controller;
 
 import java.util.List;
+
 import java.util.Map;
+
+
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -11,7 +14,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
 import org.springframework.web.bind.annotation.PutMapping;
+
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +43,7 @@ public class EnvironmentVinculationController {
     // public ResponseEntity<String> createActivity(@RequestBody
     // EnvironmentVinculationDTO environmentVinculationDTO) {
 
+
     //     EnvironmentVinculation environmentVinculation = environmentVinculationMapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
 
     //     boolean chek = environmentVinculationService.createActivity(environmentVinculation, 25);
@@ -45,6 +52,20 @@ public class EnvironmentVinculationController {
     //     } else {
     //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no creada");
     //     }
+
+    // EnvironmentVinculation environmentVinculation = environmentVinculationMapper
+    // .environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
+
+    // boolean chek =
+    // environmentVinculationService.createActivity(environmentVinculation);
+    // if (chek) {
+    // return ResponseEntity.status(HttpStatus.CREATED).body("Actividad creada
+    // exitosamente");
+    // } else {
+    // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no
+    // creada");
+    // }
+
     // }
 
     // eliminar actividades
@@ -89,6 +110,7 @@ public class EnvironmentVinculationController {
                 .findByActivityName(activityName);
         return environmentVinculationDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
+
 
     // Crear actividades poor administrativos
     @PostMapping("/create")
@@ -136,6 +158,25 @@ public class EnvironmentVinculationController {
             return ResponseEntity.ok(updated);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+}
+
+    @PostMapping("/create/{administrativeName}/{userRut}")
+    public ResponseEntity<String> createActivityByAdministrativeName(@PathVariable String administrativeName,
+            @PathVariable String userRut, @RequestBody EnvironmentVinculationDTO environmentVinculationDTO) {
+        if (!userService.isAdministrative(administrativeName, userRut)) {
+            return ResponseEntity.status(403).body("No tienes permisos para crear la actividad");
+        }
+        int id = userService.findUserByRut(userRut).get().getId();
+        EnvironmentVinculation environmentVinculation = environmentVinculationMapper
+                .environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
+        boolean chek = environmentVinculationService.createActivity(environmentVinculation, id);
+        if (chek) {
+            return ResponseEntity.ok("Actividad creada exitosamente");
+        } else {
+            return ResponseEntity.status(400).body("Actividad no creada");
         }
     }
 

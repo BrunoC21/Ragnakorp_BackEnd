@@ -10,4 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EnvironmentVinculationRepository extends JpaRepository<EnvironmentVinculation, Integer> {
     Optional<EnvironmentVinculation> findByActivityName(String environmentVinculationName);
+
 }
+
+}
+
