@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.Polo.model.NewsDTO;
 import com.Polo.model.User;
 import com.Polo.model.UserDTO;
 import com.Polo.model.UserMapper;

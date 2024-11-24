@@ -11,14 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Suscription;
-import com.Polo.model.SuscriptionsDTO;
-import com.Polo.model.SuscriptionsMapper;
 import com.Polo.service.SuscriptionService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class SuscriptionController {
 
     private final SuscriptionService suscriptionService;
-    private final SuscriptionsMapper suscriptionsMapper;
 
     // crear suscriptor
     @PostMapping("/create")
