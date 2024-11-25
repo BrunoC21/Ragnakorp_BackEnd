@@ -44,7 +44,7 @@ public class UserController {
 
     // crear usuarios
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(/*@RequestBody UserDTO userDTO*/ @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> createUser(/*@RequestBody UserDTO userDTO*/@RequestBody Map<String, Object> session) {
 
         // Crear una instancia de ObjectMapper
         ObjectMapper objectMapper = new ObjectMapper();
@@ -128,7 +128,6 @@ public class UserController {
     }
 
     // apartado login
-
     @PostMapping("/login")
     @CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
     public ResponseEntity<Map<String, Object>> login(@RequestParam String rut, @RequestParam String password, HttpSession session) {
@@ -153,9 +152,9 @@ public class UserController {
 
             // Retornar los datos de sesión y una respuesta HTTP 200 OK
             return ResponseEntity
-                .status(HttpStatus.ACCEPTED)
-                .header("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure")
-                .body(sessionData);
+                    .status(HttpStatus.ACCEPTED)
+                    .header("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure")
+                    .body(sessionData);
         } else {
             // Si el login falla, retornar un error 401 con un mensaje
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
@@ -166,14 +165,11 @@ public class UserController {
     // @PutMapping("/assignRole/")
     // public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
     //     Map<String, Object> sessionData = SessionUtils.getUserSession(session);
-
     //     String role = sessionData.get("role").toString();
-
     //     if ("ADMIN".equals(role)) {
     //         System.out.println("INGRESASTE");
     //         // Intentar asignar el nuevo rol al usuario
     //         boolean isUpdated = userService.updateUserRole(userRut, newRole);
-
     //         if (isUpdated) {
     //             return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
     //         } else {
@@ -184,7 +180,6 @@ public class UserController {
     //         return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
     //     }
     // }
-
     // apartado para asignar rol actualizado a datos de sesion
     @PutMapping("/assignRole")
     public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, @RequestBody Map<String, Object> session) {
@@ -211,7 +206,6 @@ public class UserController {
         }
     }
 
-
     // apartado para recuperar los datos de sesion
     @GetMapping("/sessionInfo")
     @CrossOrigin(origins = "http://127.0.0.1:5500", allowCredentials = "true")
@@ -219,9 +213,9 @@ public class UserController {
         Map<String, Object> sessionData = SessionUtils.getUserSession(session);
         if (sessionData.isEmpty() || sessionData.get("userRut") == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                .body(Map.of("error", "No hay sesión iniciada"));
+                    .body(Map.of("error", "No hay sesión iniciada"));
         }
         return ResponseEntity.ok(sessionData);
-    }  
+    }
 
 }

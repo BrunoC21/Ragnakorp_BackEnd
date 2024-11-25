@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,30 +16,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-
-import com.Polo.model.*;
+import com.Polo.model.Project;
+import com.Polo.model.ProjectDTO;
+import com.Polo.model.ProjectMapper;
+import com.Polo.model.UserDTO;
 import com.Polo.service.ProjectService;
 import com.Polo.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
 @CrossOrigin("http://127.0.0.1:5500")
 public class ProjectController {
-    private final ProjectService projectService;
 
-    private final UserService userService;
+    @Autowired
+    private ProjectService projectService;
 
-    private final ProjectMapper projectMapper;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     // // crear proyectos
     // @PostMapping("/create")
     // public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
-
     //     Project project = projectMapper.projectDTOToProject(projectDTO);
-
     //     boolean chek = projectService.createProject(project, null);
     //     if (chek) {
     //         return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
@@ -46,7 +52,6 @@ public class ProjectController {
     //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
     //     }
     // }
-
     // eliminar proyectos, si bien esta creado, no se permite utilizar en un principio, ya que al hacer postulaciones a los proyectos, estos guardan su pk en una 3era tabla que nace de la postulacion al proyecto, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteProject(@PathVariable int id) {
@@ -64,7 +69,7 @@ public class ProjectController {
         List<ProjectDTO> projectDTOList = projectService.findAllProjects();
         if (!projectDTOList.isEmpty()) {
             return new ResponseEntity<>(projectDTOList, HttpStatus.OK);
-        } else { 
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -74,7 +79,7 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> findByProjectId(@PathVariable int id) {
         Optional<ProjectDTO> projectDTO = projectService.findByProjectId(id);
         if (projectDTO.isPresent()) {
-            return new ResponseEntity<>(projectDTO.get(),HttpStatus.OK);
+            return new ResponseEntity<>(projectDTO.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -99,12 +104,12 @@ public class ProjectController {
         ProjectDTO projectDTO = objectMapper.convertValue(session.get("project"), ProjectDTO.class);
 
         Project project = projectMapper.projectDTOToProject(projectDTO);
-        
+
         String role = sessionData.get("role").toString();
         String rut = sessionData.get("userRut").toString();
 
         Optional<UserDTO> userDTO = userService.findUserByRut(rut);
-    
+
         if ("INVESTIGADOR".equals(role) || "ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
             boolean chek = projectService.createProject(project, rut);
             if (chek) {
@@ -117,5 +122,5 @@ public class ProjectController {
         }
 
     }
-    
+
 }
