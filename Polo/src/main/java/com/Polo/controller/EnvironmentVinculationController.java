@@ -100,7 +100,7 @@ public class EnvironmentVinculationController {
          // extraer datos de sesion
         @SuppressWarnings("unchecked") // para evitar excepciones inesperadas
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
-        EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(session.get("environmentVinculation"), EnvironmentVinculationDTO.class);
+        EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(session.get("vinculacionDTO"), EnvironmentVinculationDTO.class);
 
         String role = sessionData.get("role").toString();
         String userRut = sessionData.get("userRut").toString();
