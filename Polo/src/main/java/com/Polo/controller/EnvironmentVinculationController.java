@@ -99,7 +99,7 @@ public class EnvironmentVinculationController {
         ObjectMapper objectMapper = new ObjectMapper();
 
          // extraer datos de sesion
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked") // para evitar excepciones inesperadas
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
         EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(session.get("environmentVinculation"), EnvironmentVinculationDTO.class);
 
