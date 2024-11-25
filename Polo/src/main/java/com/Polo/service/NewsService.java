@@ -8,8 +8,12 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
 import com.Polo.Details.NewsUserDetailsService;
-import com.Polo.model.*;
+import com.Polo.model.News;
+import com.Polo.model.NewsDTO;
+import com.Polo.model.NewsMapper;
+import com.Polo.model.Suscription;
 import com.Polo.repository.NewsRepository;
+import com.Polo.repository.SuscriptionRepository;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 public class NewsService {
 
     private final NewsRepository newsRepository;
+    private final SuscriptionRepository suscriptionRepository;
     private final NewsUserDetailsService newsUserDetailsService;
+    private final EmailService emailService;
 
     private final NewsMapper mapper = Mappers.getMapper(NewsMapper.class);
 
