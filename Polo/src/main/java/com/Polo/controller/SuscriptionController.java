@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Suscription;
@@ -64,11 +63,12 @@ public class SuscriptionController {
 
     // elimiar suscriptor por admin
     @DeleteMapping("/deleteSuscriptor")
-    public ResponseEntity<String> deleteSuscriptorByAdmin(@RequestParam String subEmail, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> deleteSuscriptorByAdmin(@RequestBody Map<String, Object> session) {
 
         // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        String subEmail = (String) session.get("subEmail");
 
         String role = sessionData.get("role").toString();
 

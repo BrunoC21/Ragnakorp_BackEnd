@@ -83,5 +83,34 @@ public class NewsService {
         return Optional.empty();
     }
 
+    public boolean updateNews(NewsDTO newsDTO, String userRut) {
+        if (newsDTO != null && newsDTO.getId() != null) {
+            Optional<News> optionalNews = newsRepository.findById(newsDTO.getId());
+            if (optionalNews.isPresent()) {
+                News news = optionalNews.get();
+                
+                // Actualizar los campos de la noticia
+                news.setNewsTitle(newsDTO.getNewsTitle());
+                news.setNewsContent(newsDTO.getNewsContent());
+                news.setNewsWriter(newsDTO.getNewsWriter());
+                news.setNewsCategory(newsDTO.getNewsCategory());
+                
+                // Si hay una nueva imagen, actualizamos
+                if (newsDTO.getPrimaryImage() != null && !newsDTO.getPrimaryImage().isEmpty()) {
+                    news.setPrimaryImage(newsDTO.getPrimaryImage());
+                }
+    
+                // Guardar la noticia actualizada
+                newsRepository.save(news);
+                newsUserDetailsService.saveDetails(news, userRut);
+                return true;
+            }
+            System.out.println("Noticia no encontrada");
+        }
+        System.out.println("Datos de la noticia incorrectos");
+        return false;
+    }
+    
+
 
 }

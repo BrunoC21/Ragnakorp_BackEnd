@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ProjectDTO {
+
     private Integer id;
     private String projName;
     private String projDescription;
@@ -13,4 +14,5 @@ public class ProjectDTO {
     private String projLat;
     private String projBudget;
     private String projCategory;
+    private String projAddress;
 }
