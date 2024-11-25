@@ -8,9 +8,14 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
 import com.Polo.Details.NewsUserDetailsService;
-import com.Polo.model.*;
+import com.Polo.model.News;
+import com.Polo.model.NewsDTO;
+import com.Polo.model.NewsMapper;
+import com.Polo.model.Suscription;
 import com.Polo.repository.NewsRepository;
+import com.Polo.repository.SuscriptionRepository;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 public class NewsService {
 
     private final NewsRepository newsRepository;
+    private final SuscriptionRepository suscriptionRepository;
     private final NewsUserDetailsService newsUserDetailsService;
+    private final EmailService emailService;
 
     private final NewsMapper mapper = Mappers.getMapper(NewsMapper.class);
 
@@ -26,10 +33,30 @@ public class NewsService {
         if (news != null) {
             newsRepository.save(news);
             newsUserDetailsService.saveDetails(news, userRut);
+            sendNewsNotificationToSubscribers(news);
             return true;
         } else {
             System.out.println("Error al crear la noticia");
             return false;
+        }
+    }
+
+    private void sendNewsNotificationToSubscribers(News news) {
+        List<Suscription> suscriptions = suscriptionRepository.findAll();
+
+        for (Suscription suscription : suscriptions) {
+            String subject = "Nueva noticia publicada: " + news.getNewsTitle();
+            String body = "<h1>" + news.getNewsTitle() + "</h1>"
+                    + "<p>" + news.getNewsContent() + "</p>"
+                    + "<p><strong>Categoría:</strong> " + news.getNewsCategory() + "</p>"
+                    + "<p><a href='http://tu-sitio.com/news/" + news.getId() + "'>Leer más</a></p>";
+
+            try {
+                emailService.sendEmail(suscription.getSubEmail(), subject, body);
+            } catch (MessagingException e) {
+                System.out.println("Error al enviar correo a: " + suscription.getSubEmail());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -76,8 +103,8 @@ public class NewsService {
         if (newsList != null && !newsList.isEmpty()) {
             System.out.println("Encontrado");
             return Optional.of(newsList.stream()
-                                    .map(mapper::newsToNewsDTO)
-                                    .collect(Collectors.toList()));
+                    .map(mapper::newsToNewsDTO)
+                    .collect(Collectors.toList()));
         }
         System.out.println("No encontrado");
         return Optional.empty();
@@ -88,18 +115,18 @@ public class NewsService {
             Optional<News> optionalNews = newsRepository.findById(newsDTO.getId());
             if (optionalNews.isPresent()) {
                 News news = optionalNews.get();
-                
+
                 // Actualizar los campos de la noticia
                 news.setNewsTitle(newsDTO.getNewsTitle());
                 news.setNewsContent(newsDTO.getNewsContent());
                 news.setNewsWriter(newsDTO.getNewsWriter());
                 news.setNewsCategory(newsDTO.getNewsCategory());
-                
+
                 // Si hay una nueva imagen, actualizamos
                 if (newsDTO.getPrimaryImage() != null && !newsDTO.getPrimaryImage().isEmpty()) {
                     news.setPrimaryImage(newsDTO.getPrimaryImage());
                 }
-    
+
                 // Guardar la noticia actualizada
                 newsRepository.save(news);
                 newsUserDetailsService.saveDetails(news, userRut);
@@ -110,7 +137,5 @@ public class NewsService {
         System.out.println("Datos de la noticia incorrectos");
         return false;
     }
-    
-
 
 }
