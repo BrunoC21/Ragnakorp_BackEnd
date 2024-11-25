@@ -62,8 +62,7 @@ public class EnvironmentVinculationController {
     // buscar todas las actividades
     @GetMapping("/search")
     public ResponseEntity<List<EnvironmentVinculationDTO>> findAllActivities() {
-        List<EnvironmentVinculationDTO> environmentVinculationDTOList = environmentVinculationService
-                .findAllActivities();
+        List<EnvironmentVinculationDTO> environmentVinculationDTOList = environmentVinculationService.findAllActivities();
         if (!environmentVinculationDTOList.isEmpty()) {
             return new ResponseEntity<>(environmentVinculationDTOList, HttpStatus.OK);
         } else {
