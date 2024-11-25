@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EnvironmentVinculationService {
+
     private final EnvironmentVinculationMapper mapper = Mappers.getMapper(EnvironmentVinculationMapper.class);
     private final EnvironmentVinculationRepository environmentVinculationRepository;
     private final UserRepository userRepository;
