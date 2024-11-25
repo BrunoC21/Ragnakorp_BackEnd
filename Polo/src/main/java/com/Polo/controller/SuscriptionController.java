@@ -1,5 +1,6 @@
 package com.Polo.controller;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -10,12 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Suscription;
 import com.Polo.service.SuscriptionService;
-import com.Polo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class SuscriptionController {
 
     private final SuscriptionService suscriptionService;
-    private final UserService userService;
 
     // crear suscriptor
     @PostMapping("/create")
@@ -51,36 +49,40 @@ public class SuscriptionController {
     }
 
     // autoeliminacion de suscriptor
-    @DeleteMapping("/deleteSuscriptor")
-    public ResponseEntity<String> deleteSuscriptor(@RequestParam String subEmail) {
-        // Intentar eliminar al usuario
-        boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
+    // @DeleteMapping("/deleteSuscriptor")
+    // public ResponseEntity<String> deleteSuscriptor(@RequestParam String subEmail) {
+    //     // Intentar eliminar al usuario
+    //     boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
 
-        if (check) {
-            return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
-        }
-    }
+    //     if (check) {
+    //         return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
+    //     } else {
+    //         return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
+    //     }
+    // }
 
     // elimiar suscriptor por admin
-    @DeleteMapping("/deleteSuscriptor/{adminName}")
-    public ResponseEntity<String> deleteSuscriptorByAdmin(@PathVariable String adminName, @RequestParam String subEmail) {
+    @DeleteMapping("/deleteSuscriptor")
+    public ResponseEntity<String> deleteSuscriptorByAdmin(@RequestBody Map<String, Object> session) {
 
-        // Validar si el usuario que está solicitando es ADMIN
-        if (!userService.isAdmin(adminName)) {
-            return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
+        // extraer datos de sesion
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        String subEmail = (String) session.get("subEmail");
+
+        String role = sessionData.get("role").toString();
+
+        if ("ADMIN".equals(role)) {
+            // Intentar eliminar al usuario
+            boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
+
+            if (check) {
+                return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
+            }
         } else {
-            System.out.println("El admin name esta correcto");
-        }
-
-        // Intentar eliminar al usuario
-        boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
-
-        if (check) {
-            return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Usuario sin permiso para esta accion", HttpStatus.NOT_FOUND);
         }
     }
 

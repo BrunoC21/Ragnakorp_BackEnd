@@ -16,7 +16,10 @@ public class SessionUtils {
         session.setAttribute("role", userDTO.getUserRole());
         session.setAttribute("email", userDTO.getUserEmail());
         session.setAttribute("phone", userDTO.getUserPhone());
+
+        getUserSession(session);
     }
+    
 
     public static Map<String, Object> getUserSession(HttpSession session) {
         Map<String, Object> sessionData = new HashMap<>();
@@ -26,6 +29,9 @@ public class SessionUtils {
         sessionData.put("role", session.getAttribute("role"));
         sessionData.put("email", session.getAttribute("email"));
         sessionData.put("phone", session.getAttribute("phone"));
+
+        System.out.println(" ");
+        System.out.println(sessionData);
         return sessionData;
     }
 }

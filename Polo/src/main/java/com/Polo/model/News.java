@@ -35,17 +35,11 @@ public class News {
     @Column(name = "news_date", nullable = false, updatable = false)
     private LocalDateTime newsDateTime;
 
-    @Column(name = "news_secondaryimage", nullable = false)
-    private String secondaryImage;
-
     @Column(name = "news_category", nullable = false)
     private String newsCategory;
 
     @Column(name = "news_writer", nullable = false)
     private String newsWriter;
-
-    @Column(name = "news_picture", nullable = false)
-    private String newsPicture;
 
     @Column(name = "news_primaryimage", nullable = false)
     private String primaryImage;

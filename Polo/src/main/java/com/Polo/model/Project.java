@@ -16,6 +16,7 @@ import lombok.Data;
 @Data
 @Entity
 public class Project {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "proj_id", nullable = false)
@@ -45,6 +46,9 @@ public class Project {
 
     @Column(name = "proj_category", nullable = false)
     private String projCategory;
+
+    @Column(name = "proj_address", nullable = false)
+    private String projAddress;
 
     // Relacion ManyToMany con User
     @ManyToMany(mappedBy = "projects")

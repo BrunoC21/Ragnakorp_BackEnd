@@ -14,4 +14,8 @@ public interface EnvironmentVinculationMapper {
 
     List<EnvironmentVinculationDTO> environmentVinculationListToEnvironmentVinculationDTOList(
             List<EnvironmentVinculation> environmentVinculations);
+
 }
+
+}
+

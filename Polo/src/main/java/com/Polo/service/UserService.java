@@ -60,6 +60,7 @@ public class UserService {
 
     // busqueda de usuario por rut
     public Optional<UserDTO> findUserByRut(String userRut) {
+        System.out.println(userRut);
         Optional<User> optional = userRepository.findByUserRut(userRut);
         if (optional.isPresent()) {
             System.out.println("Usuario encontrado");
@@ -169,9 +170,17 @@ public class UserService {
 
     // Método para actualizar el rol del usuario
     public boolean updateUserRole(String userRut, String newRole) {
+
+        System.out.println("LLEGASTE A EL SERVICE " + userRut);
+
         Optional<User> optional = userRepository.findByUserRut(userRut);
 
-        System.out.println(optional.get().getUserName());
+        if (optional.isPresent()) {
+            System.out.println("EL USUARIO FUE ENCONTRADO");
+        } else {
+            System.out.println("El usuario no fue encontrado");
+            return false;
+        }
 
         // Si el usuario existe, actualizar su rol
         if (optional.isPresent()) {
