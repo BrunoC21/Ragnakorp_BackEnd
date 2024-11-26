@@ -8,8 +8,10 @@ import java.util.Optional;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import com.Polo.repository.EnvironmentVinculationRepository;
+import com.Polo.repository.SuscriptionRepository;
 import com.Polo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import jakarta.mail.MessagingException;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +19,8 @@ public class EnvironmentVinculationService {
     private final EnvironmentVinculationMapper mapper = Mappers.getMapper(EnvironmentVinculationMapper.class);
     private final EnvironmentVinculationRepository environmentVinculationRepository;
     private final UserRepository userRepository;
+    private final SuscriptionRepository suscriptionRepository;
+    private final EmailService emailService;
 
     public boolean createActivity(EnvironmentVinculation environmentVinculation, int id) {
         if (environmentVinculation != null) {
@@ -41,11 +45,30 @@ public class EnvironmentVinculationService {
             // Guardar la actividad
             environmentVinculationRepository.save(environmentVinculation);
             System.out.println("Actividad creada exitosamente.");
+            sendNewsNotificationToSubscribers(environmentVinculation);
             return true;
         }
 
         System.out.println("El objeto environmentVinculation es nulo.");
         return false;
+    }
+
+    private void sendNewsNotificationToSubscribers(EnvironmentVinculation environmentVinculation) {
+        List<Suscription> suscriptions = suscriptionRepository.findAll();
+
+        for (Suscription suscription : suscriptions) {
+            String subject = "Nueva noticia publicada: " + environmentVinculation.getActivityName();
+            String body = "<h1>" + environmentVinculation.getActivityName() + "</h1>"
+                    + "<p>" + environmentVinculation.getActivityDescription() + "</p>"
+                    + "<p><a href='http://tu-sitio.com/news/" + environmentVinculation.getId() + "'>Leer más</a></p>";
+
+            try {
+                emailService.sendEmail(suscription.getSubEmail(), subject, body);
+            } catch (MessagingException e) {
+                System.out.println("Error al enviar correo a: " + suscription.getSubEmail());
+                e.printStackTrace();
+            }
+        }
     }
 
     public List<EnvironmentVinculationDTO> findAllActivities() {
@@ -88,7 +111,8 @@ public class EnvironmentVinculationService {
         return Optional.empty();
     }
 
-    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id, EnvironmentVinculationDTO environmentVinculationDTO) {
+    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id,
+            EnvironmentVinculationDTO environmentVinculationDTO) {
         // Buscar la entidad por ID
         Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
 
@@ -98,7 +122,8 @@ public class EnvironmentVinculationService {
             // Actualizar los campos con los datos del DTO
             entity.setActivityName(environmentVinculationDTO.getActivityName());
             entity.setActivityDescription(environmentVinculationDTO.getActivityDescription());
-            entity.setUser(mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
+            entity.setUser(
+                    mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
 
             // Guardar los cambios
             EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
