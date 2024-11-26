@@ -4,14 +4,21 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = UserMapper.class)
+@Mapper(componentModel = "spring")
 public interface EnvironmentVinculationMapper {
-    EnvironmentVinculationDTO environmentVinculationToEnvironmentVinculationDTO(
-            EnvironmentVinculation environmentVinculation);
-
-    EnvironmentVinculation environmentVinculationDTOToEnvironmentVinculation(
-            EnvironmentVinculationDTO environmentVinculationDTO);
-
-    List<EnvironmentVinculationDTO> environmentVinculationListToEnvironmentVinculationDTOList(
-            List<EnvironmentVinculation> environmentVinculations);
+    List<EnvironmentVinculationDTO> environmentVinculationListToEnvironmentVinculationDTOList(List<EnvironmentVinculation> entities);
+    EnvironmentVinculationDTO environmentVinculationToEnvironmentVinculationDTO(EnvironmentVinculation entity);
+    EnvironmentVinculation environmentVinculationDTOToEnvironmentVinculation(EnvironmentVinculationDTO dto);
 }
+
+
+// import org.mapstruct.Mapper;
+
+// @Mapper(componentModel = "spring", uses = UserMapper.class)
+// public interface EnvironmentVinculationMapper {
+//     EnvironmentVinculationDTO environmentVinculationToEnvironmentVinculationDTO(EnvironmentVinculation environmentVinculation);
+
+//     EnvironmentVinculation environmentVinculationDTOToEnvironmentVinculation(EnvironmentVinculationDTO environmentVinculationDTO);
+
+//     List<EnvironmentVinculationDTO> environmentVinculationListToEnvironmentVinculationDTOList(List<EnvironmentVinculation> environmentVinculations);
+// }
