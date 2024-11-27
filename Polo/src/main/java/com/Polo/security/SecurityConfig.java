@@ -17,12 +17,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/user/login", "/user/create", "/user/search", "/user/search/rut/**",
-                                "/user/assignRole/**", "/project/create/**", "/news/create/**", "/project/search",
-                                "/user/sessionInfo", "/news/search", "/news/create", "/environmentVinculation/create",
-                                "/environmentVinculation/search", "/news/update", "/suscriptor/unsubscribe")
-                        .permitAll() // Permitir acceso sin autenticación
-                        .anyRequest().authenticated())
+                .requestMatchers("/user/login", "/user/create", "/user/search", "/user/search/rut/**", "/user/assignRole/**", "/project/create/**", "/news/create/**", "/project/search", "/user/sessionInfo", "/news/search", "/news/create", "/environmentVinculation/create", "/environmentVinculation/search", "/news/update", "/environmentVinculation/update", "/project/create", "/postulation/create", "/suscriptor/unsubscribe").permitAll() // Permitir acceso sin autenticación
+                .anyRequest().authenticated()
+                )
                 .logout(logout -> logout
                         .logoutUrl("/user/logout")
                         .logoutSuccessUrl("/user/login?logout=true")

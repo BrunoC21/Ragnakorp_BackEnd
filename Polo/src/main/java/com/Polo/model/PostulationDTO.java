@@ -9,4 +9,5 @@ public class PostulationDTO {
     private String postulationRut;
     private String postulationDescription;
     private String postulationProject;
+    private String postulationStatus;
 }
