@@ -49,8 +49,10 @@ public class NewsService {
             String body = "<h1>" + news.getNewsTitle() + "</h1>"
                     + "<p>" + news.getNewsContent() + "</p>"
                     + "<p><strong>Categoría:</strong> " + news.getNewsCategory() + "</p>"
-                    + "<p><a href='http://tu-sitio.com/news/" + news.getId() + "'>Leer más</a></p>";
-
+                    + "<p><a href='http://localhost:8080/proyecto/news/" + news.getId() + "'>Leer más</a></p>"
+                    + "<p><a href='http://localhost:8080/proyecto/suscriptor/unsubscribe?email="
+                    + suscription.getSubEmail()
+                    + "'>Darse de baja</a></p>";
             try {
                 emailService.sendEmail(suscription.getSubEmail(), subject, body);
             } catch (MessagingException e) {

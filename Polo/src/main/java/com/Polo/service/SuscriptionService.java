@@ -17,7 +17,7 @@ public class SuscriptionService {
     private final SuscriptionRepository suscriptionRepository;
 
     public boolean createSuscription(Suscription suscription) {
-       if (suscription != null) {
+        if (suscription != null) {
             Suscription existingSuscription = suscriptionRepository.findBySubEmail(suscription.getSubEmail());
 
             if (existingSuscription != null) {
@@ -28,10 +28,10 @@ public class SuscriptionService {
                 System.out.println("Suscripcion confirmada");
                 return true;
             }
-       } else {
-        System.out.println("Error al iniciar la suscripcion");
-        return false;
-       }
+        } else {
+            System.out.println("Error al iniciar la suscripcion");
+            return false;
+        }
     }
 
     public List<Suscription> findAllSuscriptions() {
@@ -47,7 +47,7 @@ public class SuscriptionService {
     public boolean deleteSuscriptorByMail(String subEmail) {
         System.out.println("Suscriptor eliminado");
         Suscription sub = suscriptionRepository.findBySubEmail(subEmail);
-        
+
         if (sub != null) {
             suscriptionRepository.delete(sub);
             return true;
