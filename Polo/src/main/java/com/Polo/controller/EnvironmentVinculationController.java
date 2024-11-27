@@ -123,35 +123,35 @@ public class EnvironmentVinculationController {
     }
 
     // metodo para modificar las actividades de vinculacion con el medio
-    // @PutMapping("/update")
-    // public ResponseEntity<String> updateEnvironmentVinculation(@RequestBody Map<String, Object> payload) {
+    @PutMapping("/update")
+    public ResponseEntity<String> updateEnvironmentVinculation(@RequestBody Map<String, Object> payload) {
 
-    //     try {
-    //         // Crear una instancia de ObjectMapper
-    //         ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
 
-    //         // Extraer los datos de la sesión y de la noticia
-    //         @SuppressWarnings("unchecked")
-    //         Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
-    //         EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(payload.get("vinculation"), EnvironmentVinculationDTO.class);
+            // Extraer los datos de la sesión y de la noticia
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
+            EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(payload.get("vinculation"), EnvironmentVinculationDTO.class);
 
-    //         // Validar sesión
-    //         String role = sessionData.get("role").toString();
-    //         if (!"ADMINISTRATIVE".equals(role)) {
-    //             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
-    //         }
+            // Validar sesión
+            String role = sessionData.get("role").toString();
+            if (!"ADMINISTRATIVE".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
+            }
 
-    //         boolean updated = environmentVinculationService.updateEnvironmentVinculation(environmentVinculationDTO.getId(), environmentVinculationDTO);
+            boolean updated = environmentVinculationService.updateEnvironmentVinculation(environmentVinculationDTO.getId(), environmentVinculationDTO);
 
-    //         if (updated) {
-    //             return ResponseEntity.status(HttpStatus.OK).body("Vinculacion actualizada");
-    //         } else {
-    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar la vinculacion");
-    //         }
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
-    //     }
-    // }
+            if (updated) {
+                return ResponseEntity.status(HttpStatus.OK).body("Vinculacion actualizada");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar la vinculacion");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
+    }
 
 }
