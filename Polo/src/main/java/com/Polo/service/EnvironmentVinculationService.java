@@ -116,27 +116,27 @@ public class EnvironmentVinculationService {
         return Optional.empty();
     }
 
-    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id,
-            EnvironmentVinculationDTO environmentVinculationDTO) {
-        // Buscar la entidad por ID
-        Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
+    // public Boolean updateEnvironmentVinculation(Integer id,
+    //         EnvironmentVinculationDTO environmentVinculationDTO) {
+    //     // Buscar la entidad por ID
+    //     Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
 
-        if (optionalEntity.isPresent()) {
-            EnvironmentVinculation entity = optionalEntity.get();
+    //     if (optionalEntity.isPresent()) {
+    //         EnvironmentVinculation entity = optionalEntity.get();
 
-            // Actualizar los campos con los datos del DTO
-            entity.setActivityName(environmentVinculationDTO.getActivityName());
-            entity.setActivityDescription(environmentVinculationDTO.getActivityDescription());
-            entity.setUser(
-                    mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
+    //         // Actualizar los campos con los datos del DTO
+    //         entity.setActivityName(environmentVinculationDTO.getActivityName());
+    //         entity.setActivityDescription(environmentVinculationDTO.getActivityDescription());
+    //         entity.setUser(
+    //                 mapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO).getUser());
 
-            // Guardar los cambios
-            EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
+    //         // Guardar los cambios
+    //         EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
 
-            // Retornar la entidad actualizada como DTO
-            return true;
-        }
+    //         // Retornar la entidad actualizada como DTO
+    //         return true;
+    //     }
 
-        return false; // No se encontró la entidad
-    }
+    //     return false; // No se encontró la entidad
+    // }
 }
