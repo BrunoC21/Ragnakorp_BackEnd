@@ -62,8 +62,7 @@ public class EnvironmentVinculationController {
     // buscar todas las actividades
     @GetMapping("/search")
     public ResponseEntity<List<EnvironmentVinculationDTO>> findAllActivities() {
-        List<EnvironmentVinculationDTO> environmentVinculationDTOList = environmentVinculationService
-                .findAllActivities();
+        List<EnvironmentVinculationDTO> environmentVinculationDTOList = environmentVinculationService.findAllActivities();
         if (!environmentVinculationDTOList.isEmpty()) {
             return new ResponseEntity<>(environmentVinculationDTOList, HttpStatus.OK);
         } else {
@@ -99,9 +98,9 @@ public class EnvironmentVinculationController {
         ObjectMapper objectMapper = new ObjectMapper();
 
          // extraer datos de sesion
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked") // para evitar excepciones inesperadas
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
-        EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(session.get("environmentVinculation"), EnvironmentVinculationDTO.class);
+        EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(session.get("vinculacionDTO"), EnvironmentVinculationDTO.class);
 
         String role = sessionData.get("role").toString();
         String userRut = sessionData.get("userRut").toString();
@@ -125,22 +124,33 @@ public class EnvironmentVinculationController {
 
     // metodo para modificar las actividades de vinculacion con el medio
     @PutMapping("/update")
-    public ResponseEntity<EnvironmentVinculationDTO> updateEnvironmentVinculation(@RequestBody EnvironmentVinculationDTO dto, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> updateEnvironmentVinculation(@RequestBody Map<String, Object> payload) {
 
-        // extraer datos de sesion
-        @SuppressWarnings("unchecked")
-        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        try {
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
 
-        // String role = sessionData.get("role").toString();
-        String userRut = sessionData.get("userRut").toString();
+            // Extraer los datos de la sesión y de la noticia
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
+            EnvironmentVinculationDTO environmentVinculationDTO = objectMapper.convertValue(payload.get("vinculation"), EnvironmentVinculationDTO.class);
 
-        int id = userService.findUserByRut(userRut).get().getId();
-        EnvironmentVinculationDTO updated = environmentVinculationService.updateEnvironmentVinculation(id, dto);
+            // Validar sesión
+            String role = sessionData.get("role").toString();
+            if (!"ADMINISTRATIVE".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
+            }
 
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        } else {
-            return ResponseEntity.notFound().build();
+            boolean updated = environmentVinculationService.updateEnvironmentVinculation(environmentVinculationDTO.getId(), environmentVinculationDTO);
+
+            if (updated) {
+                return ResponseEntity.status(HttpStatus.OK).body("Vinculacion actualizada");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar la vinculacion");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
         }
     }
 

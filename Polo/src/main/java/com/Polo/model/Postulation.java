@@ -33,6 +33,9 @@ public class Postulation {
     @Column(name = "postulation_project", nullable = false)
     private String postulationProject;
 
+    @Column(name = "postulation_status", nullable = false)
+    private String postulationStatus;
+
     // Relacion ManyToMany con User y con Project
     @ManyToMany(mappedBy = "postulation")
     private List<User> user;

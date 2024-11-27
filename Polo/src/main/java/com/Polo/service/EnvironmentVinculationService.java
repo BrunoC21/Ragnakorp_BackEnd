@@ -5,7 +5,7 @@ import com.Polo.model.*;
 import java.util.List;
 import java.util.Optional;
 
-import org.mapstruct.factory.Mappers;
+// import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import com.Polo.repository.EnvironmentVinculationRepository;
 import com.Polo.repository.UserRepository;
@@ -14,9 +14,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EnvironmentVinculationService {
-    private final EnvironmentVinculationMapper mapper = Mappers.getMapper(EnvironmentVinculationMapper.class);
+    // private final EnvironmentVinculationMapper mapper = Mappers.getMapper(EnvironmentVinculationMapper.class);
+    // private final EnvironmentVinculationRepository environmentVinculationRepository;
+    // private final UserRepository userRepository;
+
     private final EnvironmentVinculationRepository environmentVinculationRepository;
     private final UserRepository userRepository;
+    private final EnvironmentVinculationMapper mapper;
 
     public boolean createActivity(EnvironmentVinculation environmentVinculation, int id) {
         if (environmentVinculation != null) {
@@ -51,8 +55,7 @@ public class EnvironmentVinculationService {
     public List<EnvironmentVinculationDTO> findAllActivities() {
         List<EnvironmentVinculation> environmentVinculationList = environmentVinculationRepository.findAll();
         List<EnvironmentVinculationDTO> environmentVinculationDTOList;
-        environmentVinculationDTOList = mapper
-                .environmentVinculationListToEnvironmentVinculationDTOList(environmentVinculationList);
+        environmentVinculationDTOList = mapper.environmentVinculationListToEnvironmentVinculationDTOList(environmentVinculationList);
         System.out.println("todas las actividades encontradas");
         return environmentVinculationDTOList;
     }
@@ -88,7 +91,7 @@ public class EnvironmentVinculationService {
         return Optional.empty();
     }
 
-    public EnvironmentVinculationDTO updateEnvironmentVinculation(Integer id, EnvironmentVinculationDTO environmentVinculationDTO) {
+    public boolean updateEnvironmentVinculation(Integer id, EnvironmentVinculationDTO environmentVinculationDTO) {
         // Buscar la entidad por ID
         Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
 
@@ -104,9 +107,9 @@ public class EnvironmentVinculationService {
             EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
 
             // Retornar la entidad actualizada como DTO
-            return mapper.environmentVinculationToEnvironmentVinculationDTO(updatedEntity);
+            return true;
         }
 
-        return null; // No se encontró la entidad
+        return false; // No se encontró la entidad
     }
 }
