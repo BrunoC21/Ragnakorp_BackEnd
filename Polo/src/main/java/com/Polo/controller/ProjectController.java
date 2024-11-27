@@ -101,7 +101,7 @@ public class ProjectController {
         // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
-        ProjectDTO projectDTO = objectMapper.convertValue(session.get("project"), ProjectDTO.class);
+        ProjectDTO projectDTO = objectMapper.convertValue(session.get("projectData"), ProjectDTO.class);
 
         Project project = projectMapper.projectDTOToProject(projectDTO);
 

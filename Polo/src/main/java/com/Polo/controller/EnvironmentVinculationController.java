@@ -137,7 +137,6 @@ public class EnvironmentVinculationController {
 
             // Validar sesión
             String role = sessionData.get("role").toString();
-            String rut = sessionData.get("userRut").toString();
             if (!"ADMINISTRATIVE".equals(role)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
             }
