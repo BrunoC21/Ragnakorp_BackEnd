@@ -17,21 +17,21 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/user/login", "/user/create", "/user/search", "/user/search/rut/**", "/user/assignRole/**", "/project/create/**", "/news/create/**", "/project/search", "/user/sessionInfo", "/news/search", "/news/create", "/environmentVinculation/create", "/environmentVinculation/search", "/news/update").permitAll() // Permitir acceso sin autenticación
-                .anyRequest().authenticated()
-                )
+                        .requestMatchers("/user/login", "/user/create", "/user/search", "/user/search/rut/**",
+                                "/user/assignRole/**", "/project/create/**", "/news/create/**", "/project/search",
+                                "/user/sessionInfo", "/news/search", "/news/create", "/environmentVinculation/create",
+                                "/environmentVinculation/search", "/news/update", "/suscriptor/unsubscribe")
+                        .permitAll() // Permitir acceso sin autenticación
+                        .anyRequest().authenticated())
                 .logout(logout -> logout
-                .logoutUrl("/user/logout")
-                .logoutSuccessUrl("/user/login?logout=true")
-                .permitAll()
-                )
+                        .logoutUrl("/user/logout")
+                        .logoutSuccessUrl("/user/login?logout=true")
+                        .permitAll())
                 .sessionManagement(session -> session
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true)
-                )
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true))
                 .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                );
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
         return http.build();
     }

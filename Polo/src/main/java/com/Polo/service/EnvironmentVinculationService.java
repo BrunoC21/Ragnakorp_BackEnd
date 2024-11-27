@@ -60,7 +60,8 @@ public class EnvironmentVinculationService {
             String subject = "Nueva noticia publicada: " + environmentVinculation.getActivityName();
             String body = "<h1>" + environmentVinculation.getActivityName() + "</h1>"
                     + "<p>" + environmentVinculation.getActivityDescription() + "</p>"
-                    + "<p><a href='http://tu-sitio.com/news/" + environmentVinculation.getId() + "'>Leer más</a></p>";
+                    + "<p><a href='http://localhost:8080/proyecto/environmentVinculation/"
+                    + environmentVinculation.getId() + "'>Leer más</a></p>";
 
             try {
                 emailService.sendEmail(suscription.getSubEmail(), subject, body);

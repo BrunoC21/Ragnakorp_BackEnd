@@ -95,6 +95,7 @@ public class SuscriptionController {
     // Endpoint para desuscribirse
     @GetMapping("/unsubscribe")
     public ResponseEntity<String> unsubscribe(@RequestParam String email) {
+        System.out.println("Intentando desuscribir: " + email);
         Suscription suscription = suscriptionRepository.findBySubEmail(email);
         if (suscription != null) {
             suscriptionRepository.delete(suscription);
