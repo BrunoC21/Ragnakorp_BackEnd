@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Polo.model.Suscription;
+import com.Polo.repository.SuscriptionRepository;
 import com.Polo.service.SuscriptionService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class SuscriptionController {
 
     private final SuscriptionService suscriptionService;
+    private final SuscriptionRepository suscriptionRepository;
 
     // crear suscriptor
     @PostMapping("/create")
@@ -50,15 +53,18 @@ public class SuscriptionController {
 
     // autoeliminacion de suscriptor
     // @DeleteMapping("/deleteSuscriptor")
-    // public ResponseEntity<String> deleteSuscriptor(@RequestParam String subEmail) {
-    //     // Intentar eliminar al usuario
-    //     boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
+    // public ResponseEntity<String> deleteSuscriptor(@RequestParam String subEmail)
+    // {
+    // // Intentar eliminar al usuario
+    // boolean check = suscriptionService.deleteSuscriptorByMail(subEmail);
 
-    //     if (check) {
-    //         return new ResponseEntity<>("Suscriptior deleted successfully", HttpStatus.OK);
-    //     } else {
-    //         return new ResponseEntity<>("Suscriptor cannot be deleted", HttpStatus.NOT_FOUND);
-    //     }
+    // if (check) {
+    // return new ResponseEntity<>("Suscriptior deleted successfully",
+    // HttpStatus.OK);
+    // } else {
+    // return new ResponseEntity<>("Suscriptor cannot be deleted",
+    // HttpStatus.NOT_FOUND);
+    // }
     // }
 
     // elimiar suscriptor por admin
@@ -83,6 +89,19 @@ public class SuscriptionController {
             }
         } else {
             return new ResponseEntity<>("Usuario sin permiso para esta accion", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Endpoint para desuscribirse
+    @GetMapping("/unsubscribe")
+    public ResponseEntity<String> unsubscribe(@RequestParam String email) {
+        System.out.println("Intentando desuscribir: " + email);
+        Suscription suscription = suscriptionRepository.findBySubEmail(email);
+        if (suscription != null) {
+            suscriptionRepository.delete(suscription);
+            return ResponseEntity.ok("Te has desuscrito exitosamente.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la suscripción.");
         }
     }
 
