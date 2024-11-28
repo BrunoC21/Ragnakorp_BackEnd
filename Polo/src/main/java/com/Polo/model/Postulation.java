@@ -2,6 +2,8 @@ package com.Polo.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,8 +40,10 @@ public class Postulation {
 
     // Relacion ManyToMany con User y con Project
     @ManyToMany(mappedBy = "postulation")
+    @JsonIgnore
     private List<User> user;
 
     @ManyToMany(mappedBy = "postulationProj")
+    @JsonIgnore
     private List<Project> project;
 }

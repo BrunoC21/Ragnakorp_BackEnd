@@ -4,6 +4,7 @@ import com.Polo.Details.ProjectUserDetailsService;
 import com.Polo.model.*;
 import com.Polo.repository.ProjectRepository;
 // import com.Polo.repository.UserRepository;
+import com.Polo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    // private final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final ProjectUserDetailsService projectUserDetailsService;
 
     private final ProjectMapper mapper = Mappers.getMapper(ProjectMapper.class);
@@ -77,6 +78,5 @@ public class ProjectService {
         }
         System.out.println("Proyecto no eliminado");
         return false;
-    }
-
+    } 
 }

@@ -161,25 +161,6 @@ public class UserController {
         }
     }
 
-    // apartado para asignar roles a los usuarios
-    // @PutMapping("/assignRole/")
-    // public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, HttpSession session) {
-    //     Map<String, Object> sessionData = SessionUtils.getUserSession(session);
-    //     String role = sessionData.get("role").toString();
-    //     if ("ADMIN".equals(role)) {
-    //         System.out.println("INGRESASTE");
-    //         // Intentar asignar el nuevo rol al usuario
-    //         boolean isUpdated = userService.updateUserRole(userRut, newRole);
-    //         if (isUpdated) {
-    //             return new ResponseEntity<>("Role updated successfully", HttpStatus.OK);
-    //         } else {
-    //             return new ResponseEntity<>("User not found or role invalid", HttpStatus.BAD_REQUEST);
-    //         }
-    //     } else {
-    //         System.out.println("NO TIENE ROL DE ADMIN");
-    //         return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
-    //     }
-    // }
     // apartado para asignar rol actualizado a datos de sesion
     @PutMapping("/assignRole")
     public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, @RequestBody Map<String, Object> session) {
