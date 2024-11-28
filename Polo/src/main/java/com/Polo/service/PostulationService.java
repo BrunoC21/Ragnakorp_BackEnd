@@ -63,4 +63,27 @@ public class PostulationService {
         System.out.println("Error al eliminar la postulacion");
         return false;
     }
+
+    public boolean updatePostulationStatus(Integer id, PostulationDTO postulationDTO) {
+        Optional<Postulation> optionalEntity = postulationRepository.findById(id);
+
+        if (optionalEntity.isPresent()) {
+            Postulation entity = optionalEntity.get();
+
+            // Actualizar los campos con los datos del DTO
+            entity.setPostulationName(postulationDTO.getPostulationName());
+            entity.setPostulationRut(postulationDTO.getPostulationRut());
+            entity.setPostulationDescription(postulationDTO.getPostulationDescription());
+            entity.setPostulationProject(postulationDTO.getPostulationProject());
+            entity.setPostulationStatus(postulationDTO.getPostulationStatus());
+
+            // Guardar los cambios
+            Postulation updatedEntity = postulationRepository.save(entity);
+
+            // Retornar la entidad actualizada como DTO
+            return true;
+        }
+
+        return false; // No se encontró la entidad
+    }
 }

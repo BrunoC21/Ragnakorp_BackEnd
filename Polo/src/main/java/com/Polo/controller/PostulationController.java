@@ -1,6 +1,7 @@
 package com.Polo.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -10,14 +11,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Polo.model.EnvironmentVinculationDTO;
 import com.Polo.model.Postulation;
 import com.Polo.model.PostulationDTO;
 import com.Polo.model.PostulationMapper;
 import com.Polo.service.PostulationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -75,4 +79,35 @@ public class PostulationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    // metodo para actualizar el estado de la postulacion
+    @PutMapping("/update")
+    public ResponseEntity<String> updatePostulationStatus(@RequestBody Map<String, Object> payload) {
+        try {
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Extraer los datos de la sesión y de la noticia
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
+            PostulationDTO postulationDTO = objectMapper.convertValue(payload.get("post"), PostulationDTO.class);
+
+            // Validar sesión
+            String role = sessionData.get("role").toString();
+            if (!"ADMINISTRATIVE".equals(role) && !"INVESTIGADOR".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
+            }
+
+            boolean updated = postulationService.updatePostulationStatus(postulationDTO.getId(), postulationDTO);
+
+            if (updated) {
+                return ResponseEntity.status(HttpStatus.OK).body("Postulacion actualizada");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar la postulacion");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
+    }   
 }
