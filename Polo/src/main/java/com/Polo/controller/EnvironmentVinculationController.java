@@ -33,21 +33,6 @@ public class EnvironmentVinculationController {
 
     private final EnvironmentVinculationMapper environmentVinculationMapper;
 
-    // crear actividades
-    // @PostMapping("/create")
-    // public ResponseEntity<String> createActivity(@RequestBody
-    // EnvironmentVinculationDTO environmentVinculationDTO) {
-
-    //     EnvironmentVinculation environmentVinculation = environmentVinculationMapper.environmentVinculationDTOToEnvironmentVinculation(environmentVinculationDTO);
-
-    //     boolean chek = environmentVinculationService.createActivity(environmentVinculation, 25);
-    //     if (chek) {
-    //         return ResponseEntity.status(HttpStatus.CREATED).body("Actividad creadaexitosamente");
-    //     } else {
-    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Actividad no creada");
-    //     }
-    // }
-
     // eliminar actividades
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteActivity(@PathVariable int id) {

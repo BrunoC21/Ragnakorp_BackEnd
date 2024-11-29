@@ -121,6 +121,9 @@ public class NewsService {
                 // Actualizar los campos de la noticia
                 news.setNewsTitle(newsDTO.getNewsTitle());
                 news.setNewsContent(newsDTO.getNewsContent());
+
+                System.out.println(newsDTO.getNewsContent());
+
                 news.setNewsWriter(newsDTO.getNewsWriter());
                 news.setNewsCategory(newsDTO.getNewsCategory());
 

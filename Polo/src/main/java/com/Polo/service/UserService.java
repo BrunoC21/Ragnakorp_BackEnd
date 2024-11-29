@@ -70,6 +70,19 @@ public class UserService {
         return Optional.empty();
     }
 
+    public UserDTO findUserByRut2(String userRut) {
+        System.out.println(userRut);
+        Optional<User> optional = userRepository.findByUserRut(userRut);
+        User usuario = optional.get();
+        UserDTO userDTO = mapper.userToUserDTO(usuario);
+        if (userDTO != null) {
+            System.out.println("Usuario encontrado");
+            return userDTO;
+        }
+        System.out.println("Usuario no encontrado");
+        return null;
+    }
+
     // busqueda de usuario por nombre
     public Optional<UserDTO> findUserByName(String userName) {
         Optional<User> optional = userRepository.findByUserName(userName);

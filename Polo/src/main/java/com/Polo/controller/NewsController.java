@@ -43,6 +43,9 @@ public class NewsController {
     @Autowired
     private NewsMapper newsMapper;
 
+    @Autowired
+    private ChangesController changesController;
+
     // Crear noticia por administrativos
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createNew(@RequestBody Map<String, Object> payload) {
@@ -174,6 +177,8 @@ public class NewsController {
 
             // Actualizar la noticia
             boolean updated = newsService.updateNews(newsDTO, rut);
+            String tipo = "noticia";
+            changesController.createChange(payload, tipo);
 
             if (updated) {
                 return ResponseEntity.status(HttpStatus.OK).body("Noticia actualizada");

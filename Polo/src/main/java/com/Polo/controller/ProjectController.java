@@ -41,17 +41,6 @@ public class ProjectController {
     @Autowired
     private ProjectMapper projectMapper;
 
-    // // crear proyectos
-    // @PostMapping("/create")
-    // public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
-    //     Project project = projectMapper.projectDTOToProject(projectDTO);
-    //     boolean chek = projectService.createProject(project, null);
-    //     if (chek) {
-    //         return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
-    //     } else {
-    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
-    //     }
-    // }
     // eliminar proyectos, si bien esta creado, no se permite utilizar en un principio, ya que al hacer postulaciones a los proyectos, estos guardan su pk en una 3era tabla que nace de la postulacion al proyecto, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteProject(@PathVariable int id) {
