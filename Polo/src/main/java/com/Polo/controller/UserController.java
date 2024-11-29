@@ -145,6 +145,7 @@ public class UserController {
             sessionData.put("role", userDTO.get().getUserRole());
             sessionData.put("email", userDTO.get().getUserEmail());
             sessionData.put("phone", userDTO.get().getUserPhone());
+            sessionData.put("userBio", userDTO.get().getUserBio());
 
             System.out.println(" ");
             System.out.println(sessionData);
@@ -190,6 +191,33 @@ public class UserController {
             System.out.println("NO TIENE ROL DE ADMIN");
             return new ResponseEntity<>("User Admin isn't ADMIN", HttpStatus.FORBIDDEN);
         }
+    }
+
+    @PutMapping("/updateProfile")
+    public ResponseEntity<String> updateProfile(@RequestBody Map<String, Object> session) {
+
+        try {
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // extraer datos de sesion
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+            UserDTO userDTO = objectMapper.convertValue(session.get("userDTO"), UserDTO.class);
+
+            UserDTO userDTO2 = userService.findUserByRut2(userDTO.getUserRut());
+
+            boolean updated = userService.updateProfile(userDTO2.getId(), userDTO);
+            if (updated) {
+                return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Profile not updated", HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
+        
     }
 
     // apartado para recuperar los datos de sesion

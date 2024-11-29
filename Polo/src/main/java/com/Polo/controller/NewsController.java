@@ -157,7 +157,7 @@ public class NewsController {
             // Validar sesión
             String role = sessionData.get("role").toString();
             String rut = sessionData.get("userRut").toString();
-            if (!"ADMINISTRATIVE".equals(role)) {
+            if (!"ADMINISTRATIVE".equals(role) && !"ADMIN".equals(role)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
             }
 
@@ -181,6 +181,7 @@ public class NewsController {
             changesController.createChange(payload, tipo);
 
             if (updated) {
+                System.out.println("NOTICIA ACTUALIZADA");
                 return ResponseEntity.status(HttpStatus.OK).body("Noticia actualizada");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar la noticia");

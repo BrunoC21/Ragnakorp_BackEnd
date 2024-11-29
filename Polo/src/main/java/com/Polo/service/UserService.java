@@ -211,4 +211,28 @@ public class UserService {
         }
         return false;
     }
+
+    public boolean updateProfile(Integer id, UserDTO userDTO) {
+        Optional<User> optional = userRepository.findById(id);
+
+        if (optional.isPresent()) {
+            User entity = optional.get();
+
+            entity.setId(id);
+            entity.setUserRut(userDTO.getUserRut());
+            entity.setUserLastName(userDTO.getUserLastName());
+            entity.setUserName(userDTO.getUserName());
+            entity.setUserEmail(userDTO.getUserEmail());
+            entity.setUserPhone(userDTO.getUserPhone());
+            entity.setUserBio(userDTO.getUserBio());
+            entity.setUserPassword(optional.get().getUserPassword());
+            entity.setUserRole(optional.get().getUserRole());
+
+            User updated = userRepository.save(entity);
+
+            return true;
+
+        }
+        return false;
+    }
 }
