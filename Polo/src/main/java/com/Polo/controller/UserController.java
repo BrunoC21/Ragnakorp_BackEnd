@@ -163,17 +163,22 @@ public class UserController {
 
     // apartado para asignar rol actualizado a datos de sesion
     @PutMapping("/assignRole")
-    public ResponseEntity<String> assignRoleByAdmin(@RequestParam String userRut, @RequestParam String newRole, @RequestBody Map<String, Object> session) {
+    public ResponseEntity<String> assignRoleByAdmin(@RequestBody Map<String, Object> session) {
 
         // extraer datos de sesion
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> updatedUser = (Map<String, Object>) session.get("updatedUser");
 
         String role = sessionData.get("role").toString();
 
         if ("ADMIN".equals(role)) {
             System.out.println("INGRESASTE");
             // Intentar asignar el nuevo rol al usuario
+            String userRut = updatedUser.get("userRut").toString();
+            String newRole = updatedUser.get("userRole").toString();
+
             boolean isUpdated = userService.updateUserRole(userRut, newRole);
 
             if (isUpdated) {
