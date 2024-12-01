@@ -50,6 +50,9 @@ public class Project {
     @Column(name = "proj_address", nullable = false)
     private String projAddress;
 
+    @Column(name = "proj_picture", nullable = false)
+    private String projPicture;
+
     // Relacion ManyToMany con User
     @ManyToMany(mappedBy = "projects")
     private List<User> user;

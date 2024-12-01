@@ -69,7 +69,7 @@ public class NewsController {
             // Decodificar la imagen Base64 si existe
             if (newsDTO.getPrimaryImage() != null && !newsDTO.getPrimaryImage().isEmpty()) {
                 byte[] imageBytes = Base64.getDecoder().decode(newsDTO.getPrimaryImage());
-                String imageName = UUID.randomUUID().toString() + ".jpg";
+                String imageName = UUID.randomUUID().toString() + ".webp";
     
                 // Guardar la imagen
                 Path imagePath = Paths.get("Polo/src/main/resources/static/images/", imageName);

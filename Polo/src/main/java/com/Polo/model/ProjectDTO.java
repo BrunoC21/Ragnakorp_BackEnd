@@ -15,4 +15,5 @@ public class ProjectDTO {
     private String projBudget;
     private String projCategory;
     private String projAddress;
+    private String projPicture;
 }
