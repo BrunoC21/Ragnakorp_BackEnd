@@ -49,10 +49,18 @@ public class EnvironmentVinculationController {
     public ResponseEntity<List<EnvironmentVinculationDTO>> findAllActivities() {
         List<EnvironmentVinculationDTO> environmentVinculationDTOList = environmentVinculationService.findAllActivities();
         if (!environmentVinculationDTOList.isEmpty()) {
+            System.out.println("ESTAN TODAS LAS ACTIVIDADES");
+            System.out.println(environmentVinculationDTOList);
             return new ResponseEntity<>(environmentVinculationDTOList, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/searchLastThree")
+    public ResponseEntity<List<EnvironmentVinculationDTO>> getLastThreeActivities() {
+        List<EnvironmentVinculationDTO> activities = environmentVinculationService.getLastThreeActivities();
+        return ResponseEntity.ok(activities);
     }
 
     // buscar actividad por id
@@ -73,6 +81,19 @@ public class EnvironmentVinculationController {
         Optional<EnvironmentVinculationDTO> environmentVinculationDTO = environmentVinculationService
                 .findByActivityName(activityName);
         return environmentVinculationDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+    }
+
+    @GetMapping("/search/category/{activityCategory}")
+    public ResponseEntity<List<EnvironmentVinculationDTO>> findByActivityCategory(@PathVariable String activityCategory) {
+        List<EnvironmentVinculationDTO> environmentVinculationDTOList = environmentVinculationService.findByActivityCategory(activityCategory);
+
+        if (!environmentVinculationDTOList.isEmpty()) {
+            System.out.println("ESTAN TODAS LAS ACTIVIDADES");
+            System.out.println(environmentVinculationDTOList);
+            return new ResponseEntity<>(environmentVinculationDTOList, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // Crear actividades poor administrativos

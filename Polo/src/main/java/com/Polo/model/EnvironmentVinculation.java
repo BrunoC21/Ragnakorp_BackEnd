@@ -25,6 +25,9 @@ public class EnvironmentVinculation {
     @Column(name = "activity_description", nullable = false, columnDefinition = "TEXT")
     private String activityDescription;
 
+    @Column(name = "activity_category", nullable = false)
+    private String activityCategory;
+
     @ManyToOne
     @JoinColumn(name = "activity_iduser", nullable = true) // Clave foránea
     private User user;
