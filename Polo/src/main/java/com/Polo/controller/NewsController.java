@@ -121,6 +121,11 @@ public class NewsController {
     @GetMapping("/search/{id}")
     public ResponseEntity<NewsDTO> findNewsById(@PathVariable int id) {
         Optional<NewsDTO> newsDTO = newsService.findNewsById(id);
+        if (newsDTO.isPresent()) {
+            System.out.println("NOTICIA CON ID " + id + " ENCONTRADA");
+        } else {
+            System.out.println("NO SE ENCONTRO LA NOTICIA");
+        }
         return newsDTO.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }

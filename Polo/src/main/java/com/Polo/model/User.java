@@ -46,7 +46,7 @@ public class User {
     @Column(name = "user_role", nullable = false)
     private String userRole;
 
-    @Column(name = "user_bio", columnDefinition = "TEXT")
+    @Column(name = "user_bio", columnDefinition = "TEXT", nullable = true)
     private String userBio;
 
     // tabla relacion con users
