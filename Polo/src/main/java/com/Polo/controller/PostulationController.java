@@ -60,6 +60,15 @@ public class PostulationController {
     // buscar todas las postulaciones
     @GetMapping("/search")
     public ResponseEntity<List<PostulationDTO>> findAllPostulations() {
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("INGRESASTE A BUSCAR LAS POSTULACIONES");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
         List<PostulationDTO> postulationDTOList = postulationService.findAllPostulations();
         if (!postulationDTOList.isEmpty()) {
             return new ResponseEntity<>(postulationDTOList, HttpStatus.OK);

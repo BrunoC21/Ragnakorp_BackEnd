@@ -43,7 +43,15 @@ public class PostulationService {
         List<Postulation> postulationList = postulationRepository.findAll();
         List<PostulationDTO> postulationDTOList;
         postulationDTOList = mapper.postulationListToPostulationDTOList(postulationList);
-        System.out.println("Postulaciones encontradas: ");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("TODAS LAS POSTULACIONES ENCONTRADAS ");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
+        System.out.println("----------------------------");
         return postulationDTOList;
     }
 
