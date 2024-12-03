@@ -43,15 +43,6 @@ public class PostulationService {
         List<Postulation> postulationList = postulationRepository.findAll();
         List<PostulationDTO> postulationDTOList;
         postulationDTOList = mapper.postulationListToPostulationDTOList(postulationList);
-        System.out.println("----------------------------");
-        System.out.println("----------------------------");
-        System.out.println("----------------------------");
-        System.out.println("----------------------------");
-        System.out.println("TODAS LAS POSTULACIONES ENCONTRADAS ");
-        System.out.println("----------------------------");
-        System.out.println("----------------------------");
-        System.out.println("----------------------------");
-        System.out.println("----------------------------");
         return postulationDTOList;
     }
 
@@ -90,6 +81,10 @@ public class PostulationService {
 
             // Guardar los cambios
             Postulation updatedEntity = postulationRepository.save(entity);
+
+            if (updatedEntity != null) {
+                System.out.println("postulacion actualizada");
+            }
 
             // Retornar la entidad actualizada como DTO
             return true;
