@@ -1,8 +1,13 @@
 package com.Polo.controller;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +18,6 @@ import com.Polo.model.ChangesDTO;
 import com.Polo.model.ChangesMapper;
 import com.Polo.model.NewsDTO;
 import com.Polo.model.ProjectDTO;
-import com.Polo.model.UserDTO;
 import com.Polo.service.ChangesService;
 import com.Polo.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +40,16 @@ public class ChangesController {
             handleNewsChange(payload);
         } else {
             handleProjectChange(payload);
+        }
+    }
+
+    @GetMapping("/search/news")
+    public ResponseEntity<List<ChangesDTO>> findAllNewsChanges() {
+        List<ChangesDTO> newsChangesDTO = changesService.findAllNewsChanges();
+        if (!newsChangesDTO.isEmpty()) {
+            return new ResponseEntity<>(newsChangesDTO, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
