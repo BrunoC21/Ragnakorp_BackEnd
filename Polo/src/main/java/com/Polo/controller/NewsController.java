@@ -43,6 +43,9 @@ public class NewsController {
     @Autowired
     private NewsMapper newsMapper;
 
+    @Autowired
+    private ChangesController changesController;
+
     // Crear noticia por administrativos
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createNew(@RequestBody Map<String, Object> payload) {
@@ -66,7 +69,7 @@ public class NewsController {
             // Decodificar la imagen Base64 si existe
             if (newsDTO.getPrimaryImage() != null && !newsDTO.getPrimaryImage().isEmpty()) {
                 byte[] imageBytes = Base64.getDecoder().decode(newsDTO.getPrimaryImage());
-                String imageName = UUID.randomUUID().toString() + ".jpg";
+                String imageName = UUID.randomUUID().toString() + ".webp";
     
                 // Guardar la imagen
                 Path imagePath = Paths.get("Polo/src/main/resources/static/images/", imageName);
@@ -118,6 +121,11 @@ public class NewsController {
     @GetMapping("/search/{id}")
     public ResponseEntity<NewsDTO> findNewsById(@PathVariable int id) {
         Optional<NewsDTO> newsDTO = newsService.findNewsById(id);
+        if (newsDTO.isPresent()) {
+            System.out.println("NOTICIA CON ID " + id + " ENCONTRADA");
+        } else {
+            System.out.println("NO SE ENCONTRO LA NOTICIA");
+        }
         return newsDTO.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -154,7 +162,7 @@ public class NewsController {
             // Validar sesión
             String role = sessionData.get("role").toString();
             String rut = sessionData.get("userRut").toString();
-            if (!"ADMINISTRATIVE".equals(role)) {
+            if (!"ADMINISTRATIVE".equals(role) && !"ADMIN".equals(role)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
             }
 
@@ -174,8 +182,11 @@ public class NewsController {
 
             // Actualizar la noticia
             boolean updated = newsService.updateNews(newsDTO, rut);
+            String tipo = "noticia";
+            changesController.createChange(payload, tipo);
 
             if (updated) {
+                System.out.println("NOTICIA ACTUALIZADA");
                 return ResponseEntity.status(HttpStatus.OK).body("Noticia actualizada");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar la noticia");

@@ -1,11 +1,17 @@
 package com.Polo.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,17 +47,6 @@ public class ProjectController {
     @Autowired
     private ProjectMapper projectMapper;
 
-    // // crear proyectos
-    // @PostMapping("/create")
-    // public ResponseEntity<String> createUser(@RequestBody ProjectDTO projectDTO) {
-    //     Project project = projectMapper.projectDTOToProject(projectDTO);
-    //     boolean chek = projectService.createProject(project, null);
-    //     if (chek) {
-    //         return ResponseEntity.status(HttpStatus.CREATED).body("Proyecto creado exitosamente");
-    //     } else {
-    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proyecto no creado");
-    //     }
-    // }
     // eliminar proyectos, si bien esta creado, no se permite utilizar en un principio, ya que al hacer postulaciones a los proyectos, estos guardan su pk en una 3era tabla que nace de la postulacion al proyecto, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteProject(@PathVariable int id) {
@@ -92,33 +87,52 @@ public class ProjectController {
         return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createProjectByAdministrativeName(@RequestBody Map<String, Object> session) {
 
-        // Crear una instancia de ObjectMapper
-        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
 
-        // extraer datos de sesion
-        @SuppressWarnings("unchecked")
-        Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
-        ProjectDTO projectDTO = objectMapper.convertValue(session.get("projectData"), ProjectDTO.class);
+            // extraer datos de sesion
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+            ProjectDTO projectDTO = objectMapper.convertValue(session.get("projectData"), ProjectDTO.class);
 
-        Project project = projectMapper.projectDTOToProject(projectDTO);
+            // Decodificar la imagen Base64 si existe
+                if (projectDTO.getProjPicture() != null && !projectDTO.getProjPicture().isEmpty()) {
+                    byte[] imageBytes = Base64.getDecoder().decode(projectDTO.getProjPicture());
+                    String imageName = UUID.randomUUID().toString() + ".webp";
+        
+                    // Guardar la imagen
+                    Path imagePath = Paths.get("Polo/src/main/resources/static/images/", imageName);
+                    Files.createDirectories(imagePath.getParent());
+                    Files.write(imagePath, imageBytes);
+        
+                    // Asignar el nombre de la imagen a la noticia
+                    projectDTO.setProjPicture(imageName);
+                }
 
-        String role = sessionData.get("role").toString();
-        String rut = sessionData.get("userRut").toString();
+            Project project = projectMapper.projectDTOToProject(projectDTO);
 
-        Optional<UserDTO> userDTO = userService.findUserByRut(rut);
+            String role = sessionData.get("role").toString();
+            String rut = sessionData.get("userRut").toString();
 
-        if ("INVESTIGADOR".equals(role) || "ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
-            boolean chek = projectService.createProject(project, rut);
-            if (chek) {
-                return ResponseEntity.ok("Proyecto creado exitosamente");
+            Optional<UserDTO> userDTO = userService.findUserByRut(rut);
+
+            if ("INVESTIGADOR".equals(role) || "ADMINISTRATIVE".equals(role) && userDTO.isPresent()) {
+                boolean chek = projectService.createProject(project, rut);
+                if (chek) {
+                    return ResponseEntity.ok("Proyecto creado exitosamente");
+                } else {
+                    return ResponseEntity.status(400).body("Proyecto no creado");
+                }
             } else {
-                return ResponseEntity.status(400).body("Proyecto no creado");
+                return ResponseEntity.status(400).body("El usuario no tiene los permisos necesarios");
             }
-        } else {
-            return ResponseEntity.status(400).body("El usuario no tiene los permisos necesarios");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
         }
 
     }

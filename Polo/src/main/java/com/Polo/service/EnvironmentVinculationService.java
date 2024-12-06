@@ -116,6 +116,19 @@ public class EnvironmentVinculationService {
         return Optional.empty();
     }
 
+    // findByActivityCategory
+    public List<EnvironmentVinculationDTO> findByActivityCategory(String activityCategory) {
+        List<EnvironmentVinculation> environmentVinculationList = environmentVinculationRepository.findByActivityCategory(activityCategory);
+        List<EnvironmentVinculationDTO> environmentVinculationDTOList;
+        environmentVinculationDTOList = mapper.environmentVinculationListToEnvironmentVinculationDTOList(environmentVinculationList);
+        System.out.println("todas las actividades encontradas");
+        return environmentVinculationDTOList;
+    }
+
+    public List<EnvironmentVinculationDTO> getLastThreeActivities() {
+        return mapper.environmentVinculationListToEnvironmentVinculationDTOList(environmentVinculationRepository.findTop3ByOrderByIdDesc());
+    }
+
     public boolean updateEnvironmentVinculation(Integer id, EnvironmentVinculationDTO environmentVinculationDTO) {
         // Buscar la entidad por ID
         Optional<EnvironmentVinculation> optionalEntity = environmentVinculationRepository.findById(id);
@@ -130,6 +143,7 @@ public class EnvironmentVinculationService {
 
             // Guardar los cambios
             EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
+            System.out.println(updatedEntity);
 
             // Retornar la entidad actualizada como DTO
             return true;

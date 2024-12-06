@@ -113,6 +113,8 @@ public class NewsService {
     }
 
     public boolean updateNews(NewsDTO newsDTO, String userRut) {
+        System.out.println(userRut);
+        System.out.println("ESTO ES UPDATE NEWS");
         if (newsDTO != null && newsDTO.getId() != null) {
             Optional<News> optionalNews = newsRepository.findById(newsDTO.getId());
             if (optionalNews.isPresent()) {
@@ -121,6 +123,20 @@ public class NewsService {
                 // Actualizar los campos de la noticia
                 news.setNewsTitle(newsDTO.getNewsTitle());
                 news.setNewsContent(newsDTO.getNewsContent());
+                
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println(newsDTO.getNewsContent());
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+                System.out.println("-------------------------");
+
+
                 news.setNewsWriter(newsDTO.getNewsWriter());
                 news.setNewsCategory(newsDTO.getNewsCategory());
 

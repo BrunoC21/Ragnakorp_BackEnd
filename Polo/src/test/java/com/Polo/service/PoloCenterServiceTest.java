@@ -1,12 +1,10 @@
 package com.Polo.service;
 
-import com.Polo.model.PoloCenterMapper;
 import com.Polo.model.Polocenter;
 import com.Polo.repository.PoloCenterRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,7 +21,6 @@ public class PoloCenterServiceTest {
     @Mock
     private PoloCenterRepository poloCenterRepository;
 
-    private PoloCenterMapper poloCenterMapper = Mappers.getMapper(PoloCenterMapper.class);
 
     @InjectMocks
     private PoloCenterService poloCenterService;

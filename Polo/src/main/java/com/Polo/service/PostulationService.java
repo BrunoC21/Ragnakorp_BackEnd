@@ -4,9 +4,11 @@ import com.Polo.Details.PostulationProjectDetailsService;
 import com.Polo.Details.PostulationUserDetailsService;
 import com.Polo.model.*;
 import com.Polo.repository.PostulationRepository;
+import com.Polo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class PostulationService {
     private final PostulationRepository postulationRepository;
     private final PostulationUserDetailsService postulationUserDetailsService;
     private final PostulationProjectDetailsService postulationProjectDetailsService;
+    private final UserRepository userRepository;
 
     private final PostulationMapper mapper = Mappers.getMapper(PostulationMapper.class);
 
@@ -40,7 +43,6 @@ public class PostulationService {
         List<Postulation> postulationList = postulationRepository.findAll();
         List<PostulationDTO> postulationDTOList;
         postulationDTOList = mapper.postulationListToPostulationDTOList(postulationList);
-        System.out.println("Postulaciones encontradas: ");
         return postulationDTOList;
     }
 
@@ -63,4 +65,52 @@ public class PostulationService {
         System.out.println("Error al eliminar la postulacion");
         return false;
     }
+
+    public boolean updatePostulationStatus(Integer id, PostulationDTO postulationDTO) {
+        Optional<Postulation> optionalEntity = postulationRepository.findById(id);
+
+        if (optionalEntity.isPresent()) {
+            Postulation entity = optionalEntity.get();
+
+            // Actualizar los campos con los datos del DTO
+            entity.setPostulationName(postulationDTO.getPostulationName());
+            entity.setPostulationRut(postulationDTO.getPostulationRut());
+            entity.setPostulationDescription(postulationDTO.getPostulationDescription());
+            entity.setPostulationProject(postulationDTO.getPostulationProject());
+            entity.setPostulationStatus(postulationDTO.getPostulationStatus());
+
+            // Guardar los cambios
+            Postulation updatedEntity = postulationRepository.save(entity);
+
+            if (updatedEntity != null) {
+                System.out.println("postulacion actualizada");
+            }
+
+            // Retornar la entidad actualizada como DTO
+            return true;
+        }
+
+        return false; // No se encontró la entidad
+    }
+
+    
+    public List<PostulationDTO> getPostulationsByUser(String userRut) {
+        // Recuperar el usuario desde la base de datos usando el RUT
+        User user = userRepository.findByUserRut(userRut).orElseThrow(() -> new RuntimeException("Usuario no encontrado con RUT: " + userRut));
+
+        // Convertir las postulaciones del usuario a DTO
+        return user.getPostulation().stream()
+                .map(postulation -> {
+                    PostulationDTO dto = new PostulationDTO();
+                    dto.setId(postulation.getId());
+                    dto.setPostulationName(postulation.getPostulationName());
+                    dto.setPostulationRut(postulation.getPostulationRut());
+                    dto.setPostulationDescription(postulation.getPostulationDescription());
+                    dto.setPostulationProject(postulation.getPostulationProject());
+                    dto.setPostulationStatus(postulation.getPostulationStatus());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+    
 }

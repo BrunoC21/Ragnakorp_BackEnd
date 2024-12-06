@@ -33,6 +33,7 @@ public class ProjectServiceTest {
     private ProjectService projectService;
 
     private Project project;
+    @SuppressWarnings("unused")
     private ProjectDTO projectDTO;
 
     @BeforeEach

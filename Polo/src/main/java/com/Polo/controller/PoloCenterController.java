@@ -28,16 +28,6 @@ public class PoloCenterController {
     private final PoloCenterService poloCenterService;
     private final PoloCenterMapper poloCenterMapper;
 
-    // @PostMapping("/create")
-    // public ResponseEntity<String> createPoloCenter(@RequestBody Polocenter poloCenter) {
-    //     boolean chek = poloCenterService.createPoloCenter(poloCenter);
-    //     if (chek) {
-    //         return ResponseEntity.ok("Centro creado exitosamente");
-    //     } else {
-    //         return ResponseEntity.status(404).body("Centro no creado");
-    //     }
-    // }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deletePoloCenter(@PathVariable int id) {
         boolean isDeleted = poloCenterService.deletePoloCenter(id);

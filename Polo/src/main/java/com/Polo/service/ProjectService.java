@@ -4,9 +4,11 @@ import com.Polo.Details.ProjectUserDetailsService;
 import com.Polo.model.*;
 import com.Polo.repository.ProjectRepository;
 // import com.Polo.repository.UserRepository;
+import com.Polo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    // private final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final ProjectUserDetailsService projectUserDetailsService;
 
     private final ProjectMapper mapper = Mappers.getMapper(ProjectMapper.class);
@@ -77,6 +79,28 @@ public class ProjectService {
         }
         System.out.println("Proyecto no eliminado");
         return false;
-    }
+    } 
 
+    public List<ProjectDTO> getProjectsCreatedByUser(String userRut) {
+        User user = userRepository.findByUserRut(userRut).orElseThrow(() -> new RuntimeException("Usuario no encontrado con RUT: " + userRut));
+
+        System.out.println("ENTRASTE A BUSCAR LOS PROYECTOS");
+        
+        return user.getProjects().stream()
+                .map(project -> {
+                    ProjectDTO dto = new ProjectDTO();
+                    dto.setId(project.getId());
+                    dto.setProjName(project.getProjName());
+                    dto.setProjDescription(project.getProjDescription());
+                    dto.setProjLong(project.getProjLong());
+                    dto.setProjStartDate(project.getProjStartDate());
+                    dto.setProjRequirementsPostulation(project.getProjRequirementsPostulation());
+                    dto.setProjLat(project.getProjLat());
+                    dto.setProjBudget(project.getProjBudget());
+                    dto.setProjCategory(project.getProjCategory());
+                    dto.setProjAddress(project.getProjAddress());
+                    return dto;
+                }).collect(Collectors.toList());
+
+    }
 }
