@@ -203,6 +203,7 @@ public class UserController {
             // extraer datos de sesion
             @SuppressWarnings("unchecked")
             Map<String, Object> sessionData = (Map<String, Object>) session.get("sessionData");
+            System.out.println(sessionData);
             UserDTO userDTO = objectMapper.convertValue(session.get("userDTO"), UserDTO.class);
 
             UserDTO userDTO2 = userService.findUserByRut2(userDTO.getUserRut());

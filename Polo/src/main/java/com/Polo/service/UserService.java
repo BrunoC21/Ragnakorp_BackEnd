@@ -229,6 +229,7 @@ public class UserService {
             entity.setUserRole(optional.get().getUserRole());
 
             User updated = userRepository.save(entity);
+            System.out.println(updated);
 
             return true;
 

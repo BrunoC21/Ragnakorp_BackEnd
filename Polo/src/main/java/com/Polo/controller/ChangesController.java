@@ -2,8 +2,8 @@ package com.Polo.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -43,14 +43,11 @@ public class ChangesController {
         }
     }
 
-    @GetMapping("/search/news")
+    @GetMapping("/search/News")
     public ResponseEntity<List<ChangesDTO>> findAllNewsChanges() {
-        List<ChangesDTO> newsChangesDTO = changesService.findAllNewsChanges();
-        if (!newsChangesDTO.isEmpty()) {
-            return new ResponseEntity<>(newsChangesDTO, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<List<ChangesDTO>> newsChangesDTO = changesService.findAllNewsChanges();
+        return newsChangesDTO.map(newsList -> new ResponseEntity<>(newsList, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     private void handleNewsChange(Map<String, Object> payload) {

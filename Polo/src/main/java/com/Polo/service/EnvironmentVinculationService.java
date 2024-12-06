@@ -143,6 +143,7 @@ public class EnvironmentVinculationService {
 
             // Guardar los cambios
             EnvironmentVinculation updatedEntity = environmentVinculationRepository.save(entity);
+            System.out.println(updatedEntity);
 
             // Retornar la entidad actualizada como DTO
             return true;

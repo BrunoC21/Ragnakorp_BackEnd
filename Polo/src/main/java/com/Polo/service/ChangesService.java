@@ -1,6 +1,8 @@
 package com.Polo.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
@@ -32,11 +34,14 @@ public class ChangesService {
         return false;
     }
 
-    public List<ChangesDTO> findAllNewsChanges() {
+    public Optional<List<ChangesDTO>> findAllNewsChanges() {
         List<Changes> changesList = changesRepository.findAllByChangesDescription("Noticia");
-        List<ChangesDTO> newsChangesDTOs;
-        newsChangesDTOs = mapper.changesListToChangesDTOList(changesList);
-        return newsChangesDTOs;
+        if (changesList != null && !changesList.isEmpty()) {
+            System.out.println("Encontrado");
+            return Optional.of(changesList.stream().map(mapper::changesToChangesDTO).collect(Collectors.toList()));
+        }
+        System.out.println("No encontrado");
+        return Optional.empty();
     }
 
 }
