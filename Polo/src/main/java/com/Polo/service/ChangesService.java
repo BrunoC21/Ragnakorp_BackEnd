@@ -34,14 +34,21 @@ public class ChangesService {
         return false;
     }
 
-    public Optional<List<ChangesDTO>> findAllNewsChanges() {
+    public List<ChangesDTO> findAllNewsChanges() {
         List<Changes> changesList = changesRepository.findAllByChangesDescription("Noticia");
         if (changesList != null && !changesList.isEmpty()) {
-            System.out.println("Encontrado");
-            return Optional.of(changesList.stream().map(mapper::changesToChangesDTO).collect(Collectors.toList()));
+            List<ChangesDTO> changesDTOList = mapper.changesListToChangesDTOList(changesList);
+            return changesDTOList;
         }
-        System.out.println("No encontrado");
-        return Optional.empty();
+        return List.of(); // Devuelve una lista vacía si no hay cambios.
     }
 
+    public List<ChangesDTO> findAllProjectChanges() {
+        List<Changes> changesList = changesRepository.findAllByChangesDescription("Proyecto");
+        if (changesList != null && !changesList.isEmpty()) {
+            List<ChangesDTO> changesDTOList = mapper.changesListToChangesDTOList(changesList);
+            return changesDTOList;
+        }
+        return List.of(); // Devuelve una lista vacía si no hay cambios.
+    }
 }
