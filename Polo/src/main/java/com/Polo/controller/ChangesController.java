@@ -45,9 +45,24 @@ public class ChangesController {
 
     @GetMapping("/search/News")
     public ResponseEntity<List<ChangesDTO>> findAllNewsChanges() {
-        Optional<List<ChangesDTO>> newsChangesDTO = changesService.findAllNewsChanges();
-        return newsChangesDTO.map(newsList -> new ResponseEntity<>(newsList, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        System.out.println("INGRESASTE AL METODO");
+        List<ChangesDTO> newsChangesDTO = changesService.findAllNewsChanges();
+        if (!newsChangesDTO.isEmpty()) {
+            return new ResponseEntity<>(newsChangesDTO, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/search/Project")
+    public ResponseEntity<List<ChangesDTO>> findAllProjectChanges() {
+        System.out.println("INGRESASTE AL METODO");
+        List<ChangesDTO> projectsChangesDTO = changesService.findAllProjectChanges();
+        if (!projectsChangesDTO.isEmpty()) {
+            return new ResponseEntity<>(projectsChangesDTO, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     private void handleNewsChange(Map<String, Object> payload) {

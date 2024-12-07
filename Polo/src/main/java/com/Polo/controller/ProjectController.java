@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Autowired
+    private ChangesController changesController;
 
     // eliminar proyectos, si bien esta creado, no se permite utilizar en un principio, ya que al hacer postulaciones a los proyectos, estos guardan su pk en una 3era tabla que nace de la postulacion al proyecto, por lo cual para eliminarla se requiere una mayor logica.
     @DeleteMapping("/delete/{id}")
@@ -137,4 +141,52 @@ public class ProjectController {
 
     }
 
+
+    @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateProject(@RequestBody Map<String, Object> payload) {
+        try {
+            // Crear una instancia de ObjectMapper
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Extraer los datos de la sesión y del proyecto
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
+            ProjectDTO projectDTO = objectMapper.convertValue(payload.get("project"), ProjectDTO.class);
+
+            // Validar sesión
+            String role = sessionData.get("role").toString();
+            String rut = sessionData.get("userRut").toString();
+            if (!"ADMINISTRATIVE".equals(role) && !"ADMIN".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
+            }
+
+            // Decodificar la imagen Base64 si existe
+            if (projectDTO.getProjPicture() != null && !projectDTO.getProjPicture().isEmpty()) {
+                byte[] imageBytes = Base64.getDecoder().decode(projectDTO.getProjPicture());
+                String imageName = UUID.randomUUID().toString() + ".webp";
+
+                // Guardar la imagen
+                Path imagePath = Paths.get("Polo/src/main/resources/static/images/", imageName);
+                Files.createDirectories(imagePath.getParent());
+                Files.write(imagePath, imageBytes);
+
+                // Asignar el nombre de la imagen al proyecto
+                projectDTO.setProjPicture(imageName);
+            }
+
+            // Actualizar el proyecto
+            boolean updated = projectService.updateProject(projectDTO, rut);
+            String tipo = "proyecto";
+            changesController.createChange(payload, tipo);
+
+            if (updated) {
+                return ResponseEntity.status(HttpStatus.OK).body("Proyecto actualizado");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo actualizar el proyecto");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+        }
+    }
 }
