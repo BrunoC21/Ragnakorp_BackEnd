@@ -24,12 +24,12 @@ public class PostulationProjectDetailsService {
         if (project != null) {
             if (project.get().getPostulationProj() == null) {
                 project.get().setPostulationProj(new ArrayList<>());
+                projectRepository.save(project.get());
             }
 
             if (!project.get().getPostulationProj().contains(postulation)) {
                 project.get().getPostulationProj().add(postulation);
             }
-            projectRepository.save(project.get());
         } else {
             System.out.println("Usuario no encontrado con el nombre: " + postulationProjectName);
         }
