@@ -103,4 +103,41 @@ public class ProjectService {
                 }).collect(Collectors.toList());
 
     }
+
+
+    public boolean updateProject(ProjectDTO projectDTO, String rut) {
+        try {
+            // Buscar el proyecto existente
+            Optional<Project> existingProject = projectRepository.findById(projectDTO.getId());
+            if (!existingProject.isPresent()) {
+                return false;
+            }
+    
+            Project project = existingProject.get();
+    
+            // Actualizar los datos del proyecto
+            project.setProjName(projectDTO.getProjName());
+            project.setProjDescription(projectDTO.getProjDescription());
+            project.setProjLong(projectDTO.getProjLong());
+            project.setProjStartDate(projectDTO.getProjStartDate());
+            project.setProjRequirementsPostulation(projectDTO.getProjRequirementsPostulation());
+            project.setProjLat(projectDTO.getProjLat());
+            project.setProjBudget(projectDTO.getProjBudget());
+            project.setProjCategory(projectDTO.getProjCategory());
+            project.setProjAddress(projectDTO.getProjAddress());
+    
+            // Si se proporcionó una nueva imagen, actualizarla
+            if (projectDTO.getProjPicture() != null && !projectDTO.getProjPicture().isEmpty()) {
+                project.setProjPicture(projectDTO.getProjPicture());
+            }
+    
+            // Guardar los cambios
+            projectRepository.save(project);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }
