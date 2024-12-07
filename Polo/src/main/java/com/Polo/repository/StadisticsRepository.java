@@ -1,10 +1,13 @@
 package com.Polo.repository;
 
-import com.Polo.model.Stadistics;
-import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.Polo.model.Stadistics;
 
-@Repository
-public interface StadisticsRepository  extends JpaRepository<Stadistics, Integer> {
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import com.Polo.model.Stadistics;
 
+public interface StadisticsRepository extends JpaRepository<Stadistics, Integer> {
+    Optional<Stadistics> findByAccessDay(LocalDateTime accessDay);
 }
