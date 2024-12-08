@@ -156,7 +156,7 @@ public class ProjectController {
             // Validar sesión
             String role = sessionData.get("role").toString();
             String rut = sessionData.get("userRut").toString();
-            if (!"ADMINISTRATIVE".equals(role) && !"ADMIN".equals(role)) {
+            if (!"ADMINISTRATIVE".equals(role) && !"ADMIN".equals(role) && !"INVESTIGADOR".equals(role)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("El usuario no tiene el rol necesario");
             }
 
