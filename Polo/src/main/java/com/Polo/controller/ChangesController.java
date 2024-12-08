@@ -91,7 +91,7 @@ public class ChangesController {
 
         @SuppressWarnings("unchecked")
         Map<String, Object> sessionData = (Map<String, Object>) payload.get("sessionData");
-        ProjectDTO projectDTO = objectMapper.convertValue(payload.get("projectData"), ProjectDTO.class);
+        ProjectDTO projectDTO = objectMapper.convertValue(payload.get("project"), ProjectDTO.class);
 
         String rut = sessionData.get("userRut").toString();
         String idProyecto = projectDTO.getId().toString();

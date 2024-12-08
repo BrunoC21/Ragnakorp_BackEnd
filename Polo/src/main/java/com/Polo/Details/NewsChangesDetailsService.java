@@ -63,8 +63,8 @@ public class NewsChangesDetailsService {
                 Changes existingChange = changesOptional.get();
         
                 // Inicializar la lista de relaciones si es null
-                if (existingChange.getNewsChange() == null) {
-                    existingChange.setNewsChange(new ArrayList<>());
+                if (existingChange.getProjectChange() == null) {
+                    existingChange.setProjectChange(new ArrayList<>());
                 }
         
                 // Verificar si la noticia existe
