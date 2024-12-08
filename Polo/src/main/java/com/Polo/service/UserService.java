@@ -183,33 +183,20 @@ public class UserService {
 
     // Método para actualizar el rol del usuario
     public boolean updateUserRole(String userRut, String newRole) {
-
-        System.out.println("LLEGASTE A EL SERVICE " + userRut);
-
         Optional<User> optional = userRepository.findByUserRut(userRut);
-
-        if (optional.isPresent()) {
-            System.out.println("EL USUARIO FUE ENCONTRADO");
-        } else {
-            System.out.println("El usuario no fue encontrado");
-            return false;
-        }
-
         // Si el usuario existe, actualizar su rol
         if (optional.isPresent()) {
-            System.out.println("USUARIO ENCONTRADO");
             try {
-                System.out.println("ROL ACTUALIZADO");
                 Role role = Role.valueOf(newRole.toUpperCase());
                 optional.get().setUserRole(role.name());
                 userRepository.save(optional.get()); // Guardar los cambios en la base de datos
                 return true;
             } catch (IllegalArgumentException e) {
-                // Si el rol no es válido, capturamos la excepción
                 return false;
             }
+        } else {
+            return false;
         }
-        return false;
     }
 
     public boolean updateProfile(Integer id, UserDTO userDTO) {
