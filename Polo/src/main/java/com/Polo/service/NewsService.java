@@ -48,7 +48,7 @@ public class NewsService {
             String subject = "Nueva noticia publicada: " + news.getNewsTitle();
             String body = "<h1>" + news.getNewsTitle() + "</h1>"
                     + "<p><strong>Categoría:</strong> " + news.getNewsCategory() + "</p>"
-                    + "<p><a href='http://localhost:8080/proyecto/news/" + news.getId() + "'>Leer más</a></p>"
+                    + "<p><a href='http://127.0.0.1:5500/Sprint2/Html/noticia.html?id=" + news.getId() + "'>Leer más</a></p>"
                     + "<p><a href='http://localhost:8080/proyecto/suscriptor/unsubscribe?email="
                     + suscription.getSubEmail()
                     + "'>Darse de baja</a></p>";
