@@ -47,7 +47,6 @@ public class NewsService {
         for (Suscription suscription : suscriptions) {
             String subject = "Nueva noticia publicada: " + news.getNewsTitle();
             String body = "<h1>" + news.getNewsTitle() + "</h1>"
-                    + "<p>" + news.getNewsContent() + "</p>"
                     + "<p><strong>Categoría:</strong> " + news.getNewsCategory() + "</p>"
                     + "<p><a href='http://localhost:8080/proyecto/news/" + news.getId() + "'>Leer más</a></p>"
                     + "<p><a href='http://localhost:8080/proyecto/suscriptor/unsubscribe?email="
@@ -123,7 +122,7 @@ public class NewsService {
                 // Actualizar los campos de la noticia
                 news.setNewsTitle(newsDTO.getNewsTitle());
                 news.setNewsContent(newsDTO.getNewsContent());
-                
+
                 System.out.println("-------------------------");
                 System.out.println("-------------------------");
                 System.out.println("-------------------------");
@@ -135,7 +134,6 @@ public class NewsService {
                 System.out.println("-------------------------");
                 System.out.println("-------------------------");
                 System.out.println("-------------------------");
-
 
                 news.setNewsWriter(newsDTO.getNewsWriter());
                 news.setNewsCategory(newsDTO.getNewsCategory());
